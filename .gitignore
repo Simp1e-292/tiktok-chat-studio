@@ -1,0 +1,7 @@
+node_modules/
+.cache/
+.config/
+.npm/
+.local/
+.gemini/
+*.log
