@@ -5,3 +5,10 @@ node_modules/
 .local/
 .gemini/
 *.log
+capcut_projects/
+draft_frames/
+Simp1e-292/
+.bash*
+.profile
+.gitconfig
+/Cua_Thep_TikTok_Luxury.zip

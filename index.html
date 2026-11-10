@@ -539,18 +539,61 @@ INBOX NGAY ĐỂ ỨNG TUYỂN!</textarea>
                     </div>
                 </div>
 
-                <div class="control-group">
-                    <div class="control-title">
-                        <span>📽 Tầng Xuất Bản Ảnh (Screenshot Engine)</span>
+                <!-- [NEW] Tầng Xuất Bản CapCut Draft Chuyên Nghiệp -->
+                <div class="control-group" style="border: 1px solid rgba(79, 172, 254, 0.35); background: linear-gradient(180deg, rgba(15, 23, 42, 0.6) 0%, rgba(30, 41, 59, 0.4) 100%);">
+                    <div class="control-title" style="color: #38bdf8;">
+                        <span>📦 Xuất Bản Dự Án CapCut Desktop (0 Giây Lag)</span>
                     </div>
                     
-                    <p style="font-size: 12px; color: #94a3b8; line-height: 1.4;">
-                        Chụp ảnh toàn màn hình iPhone 9:16 siêu nét để dễ dàng cắt ghép trên CapCut → Tải file <code>.PNG</code> về máy tính.
+                    <p style="font-size: 12px; color: #cbd5e1; line-height: 1.5; margin-bottom: 12px;">
+                        Tự động đóng gói toàn bộ <strong>Timeline 4 Tracks</strong> (Nền Anime Sky 9:16 + Khung Chat Hội Thoại Cửa Thép + SFX Ting/Pop + Chữ chạy Subtitle). Không lo đơ lag trình duyệt, không sợ TikTok gắn nhãn AI!
                     </p>
 
-                    <button type="button" id="btn-screenshot" onclick="exportScreenshot()" class="btn-record" style="background: #10b981; border-color: #059669;">📷 Chụp Ảnh Giao Diện (.PNG)</button>
+                    <a href="assets/Cua_Thep_TikTok_Luxury.zip" download="Cua_Thep_TikTok_Luxury.zip" class="btn-capcut" id="btn-download-capcut">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                        <span>Tải Gói Dự Án CapCut (.ZIP)</span>
+                    </a>
+
+                    <!-- Hướng dẫn 3 bước cực nhanh -->
+                    <div class="capcut-guide-box">
+                        <div style="font-weight: 700; color: #38bdf8; margin-bottom: 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+                            🚀 Hướng dẫn mở trên CapCut PC trong 10 giây:
+                        </div>
+
+                        <div class="capcut-guide-step">
+                            <span class="step-num">1</span>
+                            <div>Tải file <code>.ZIP</code> ở trên về máy tính và giải nén thư mục <code>Cua_Thep_TikTok_Luxury</code>.</div>
+                        </div>
+
+                        <div class="capcut-guide-step">
+                            <span class="step-num">2</span>
+                            <div style="width: 100%;">
+                                Copy thư mục đó vào thư mục dự án CapCut:
+                                <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">Windows (Nhấn Win + R):</div>
+                                <div class="path-code-box">
+                                    <span>%LOCALAPPDATA%\CapCut\User Data\Projects\com.lveditor.draft\</span>
+                                    <button type="button" class="btn-copy-mini" id="btn-copy-win" onclick="copyCapCutPath('%LOCALAPPDATA%\\CapCut\\User Data\\Projects\\com.lveditor.draft\\', 'btn-copy-win')">📋 Chép</button>
+                                </div>
+                                <div style="font-size: 10px; color: #94a3b8; margin-top: 4px;">macOS (Finder -> Cmd+Shift+G):</div>
+                                <div class="path-code-box">
+                                    <span>~/Movies/CapCut/User Data/Projects/com.lveditor.draft/</span>
+                                    <button type="button" class="btn-copy-mini" id="btn-copy-mac" onclick="copyCapCutPath('~/Movies/CapCut/User Data/Projects/com.lveditor.draft/', 'btn-copy-mac')">📋 Chép</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="capcut-guide-step">
+                            <span class="step-num">3</span>
+                            <div>Mở CapCut Desktop -> Chọn dự án <strong>Cua_Thep_TikTok_Luxury</strong> -> Nhấn <strong>Export (Ctrl+E)</strong> là video 60fps hoàn thành trong 3 giây!</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-size: 11px; color: #94a3b8;">Hoặc chụp nhanh 1 frame tĩnh:</span>
+                        <button type="button" id="btn-screenshot" onclick="exportScreenshot()" class="btn-secondary" style="padding: 6px 12px; font-size: 11px; width: auto;">📷 Chụp Ảnh (.PNG)</button>
+                    </div>
                     
-                    <div id="render-status" style="display: none; padding: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; font-size: 12px; color: #10b981; font-weight: 500;"></div>
+                    <div id="render-status" style="display: none; padding: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; font-size: 12px; color: #10b981; font-weight: 500; margin-top: 8px;"></div>
                 </div>
 
                 <div class="control-group" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.2);">

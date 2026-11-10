@@ -1,0 +1,18 @@
+{
+  "name": "antigravity",
+  "version": "1.0.0",
+  "description": "> **Tài liệu Kỹ thuật & Bản Binh Pháp Triển Khai v2.5 Pro (Cập Nhật Toàn Diện Dành Cho Hệ Thống Tạo Kịch Bản Trực Quan No-Code & Nén Ảnh Tự Động)**",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "html-to-image": "^1.11.13",
+    "puppeteer-core": "^25.16.0",
+    "qrcode": "^1.5.4"
+  }
+}

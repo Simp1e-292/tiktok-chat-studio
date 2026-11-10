@@ -1849,3 +1849,105 @@ input:checked + .slider:before {
         font-size: 11px;
     }
 }
+
+/* ==========================================================================
+   CAPCUT DRAFT AUTOMATION STYLES
+   ========================================================================== */
+.btn-capcut {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #6366f1 100%);
+    color: #ffffff !important;
+    border: none;
+    padding: 13px 16px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 16px rgba(79, 172, 254, 0.4);
+    text-decoration: none;
+    width: 100%;
+    box-sizing: border-box;
+    letter-spacing: 0.2px;
+}
+
+.btn-capcut:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+    filter: brightness(1.1);
+}
+
+.capcut-guide-box {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #cbd5e1;
+}
+
+.capcut-guide-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.capcut-guide-step:last-child {
+    margin-bottom: 0;
+}
+
+.step-num {
+    background: rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 11px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.path-code-box {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-family: monospace;
+    font-size: 11px;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: 4px;
+    word-break: break-all;
+}
+
+.btn-copy-mini {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #94a3b8;
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.btn-copy-mini:hover {
+    background: rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+    border-color: #38bdf8;
+}
+

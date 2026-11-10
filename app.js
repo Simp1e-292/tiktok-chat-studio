@@ -1598,3 +1598,46 @@ window.addEventListener('resize', () => {
         }
     }
 });
+
+function copyCapCutPath(pathStr, btnId) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(pathStr).then(() => {
+            showCopyFeedback(btnId);
+        }).catch(() => {
+            fallbackCopy(pathStr, btnId);
+        });
+    } else {
+        fallbackCopy(pathStr, btnId);
+    }
+}
+
+function fallbackCopy(text, btnId) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+        document.execCommand('copy');
+        showCopyFeedback(btnId);
+    } catch (e) {
+        alert('Đường dẫn: ' + text);
+    }
+    document.body.removeChild(ta);
+}
+
+function showCopyFeedback(btnId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    const oldHtml = btn.innerHTML;
+    btn.innerHTML = '✅ Đã chép!';
+    btn.style.borderColor = '#10b981';
+    btn.style.color = '#10b981';
+    setTimeout(() => {
+        btn.innerHTML = oldHtml;
+        btn.style.borderColor = '';
+        btn.style.color = '';
+    }, 2000);
+}
+
