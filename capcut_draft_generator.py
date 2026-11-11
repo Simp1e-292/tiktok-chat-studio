@@ -3,7 +3,13 @@
 """
 CapCut Draft Generator for TikTok Chat Studio
 Chuyên dụng cho Kịch bản: Cửa Thép Luxury (Biệt Thự & Test Búa Tạ Không Móp)
-Tạo gói Project chuẩn CapCut Desktop (draft_content.json + draft_meta_info.json + assets)
+Tạo gói Project chuẩn CapCut Desktop với 5 TRACKS ĐỘC LẬP:
+- Track 1: Video Nền Anime Sky (1080x1920)
+- Track 2: Video Giao Diện Chat iPhone Retina (9 frames tuần tự)
+- Track 3: Audio SFX (Ting & Pop Messenger)
+- Track 4: Audio Lồng Tiếng Voiceover Từng Nhân Vật (Giọng Sếp Adam trầm, Hải KT, Vy Sale, Thắng CT)
+- Track 5: Text Phụ Đề Subtitles Tự Động Khớp Giọng Nói
+
 Người dùng chỉ cần giải nén vào thư mục Projects của CapCut và bấm Export (Ctrl+E)
 """
 
@@ -30,6 +36,12 @@ except ImportError:
         TrackSpec, TrackType, trange, AudioMaterial, TextStyle, TextBorder
     )
 
+try:
+    from gtts import gTTS
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "--break-system-packages", "gTTS"])
+    from gtts import gTTS
+
 WORKSPACE = Path("/home/antigravity")
 ASSETS_DIR = WORKSPACE / "assets"
 PROJECT_NAME = "Cua_Thep_TikTok_Luxury"
@@ -37,83 +49,153 @@ OUTPUT_DIR = WORKSPACE / "capcut_projects"
 DRAFT_DIR = OUTPUT_DIR / PROJECT_NAME
 ZIP_PATH = WORKSPACE / f"{PROJECT_NAME}.zip"
 
-# Định nghĩa kịch bản timeline (27.0 giây chuẩn TikTok)
-TIMELINE_SCENARIO = [
+# Định nghĩa dữ liệu thoại kịch bản Văn Phòng Cửa Thép
+RAW_DIALOGUE = [
     {
-        "index": 0,
-        "frame": "frame_0.png",
-        "start_us": 0,
-        "duration_us": 500000,  # 0 -> 0.5s
-        "sfx": None,
-        "sub": ""
-    },
-    {
+        "id": "gmsg_1",
         "index": 1,
         "frame": "frame_1.png",
-        "start_us": 500000,
-        "duration_us": 3500000, # 0.5s -> 4.0s
+        "sender": "SẾP TỔNG",
+        "role": "sep",
+        "text": "Hải Kỹ Thuật ơi! Khách bên biệt thự Vinhome gọi giục nghiệm thu 50 bộ Cửa Thép Vân Gỗ. Đập búa tạ và khò lửa test thế nào rồi?!",
         "sfx": "sfx_pop.mp3",
-        "sub": "SẾP TỔNG: Nghiệm thu biệt thự Vinhome thế nào rồi?!"
+        "sub": "SẾP TỔNG: Nghiệm thu biệt thự Vinhome 50 bộ Cửa Thép thế nào rồi?!"
     },
     {
+        "id": "gmsg_2",
         "index": 2,
         "frame": "frame_2.png",
-        "start_us": 4000000,
-        "duration_us": 3500000, # 4.0s -> 7.5s
+        "sender": "Hải Kỹ Thuật",
+        "role": "hai",
+        "text": "Sếp yên tâm 100%! Đập búa tạ 5kg mỏi cả tay không móp một ly! Sơn vân gỗ Lim Nam Phi chống trầy xước tuyệt đối!",
         "sfx": "sfx_ting.mp3",
-        "sub": "HẢI KỸ THUẬT: Đập búa tạ 5kg không móp một ly!"
+        "sub": "HẢI KỸ THUẬT: Đập búa tạ 5kg mỏi tay không móp một ly!"
     },
     {
+        "id": "gmsg_3",
         "index": 3,
         "frame": "frame_3.png",
-        "start_us": 7500000,
-        "duration_us": 3000000, # 7.5s -> 10.5s
+        "sender": "Hải Kỹ Thuật",
+        "role": "hai",
+        "text": "Test đèn khò 1000 độ C gioăng chống cháy tự phồng nở kín mít, khói độc không lọt được vào một milimet!",
         "sfx": "sfx_ting.mp3",
         "sub": "HẢI: Đèn khò 1000°C gioăng chống cháy tự nở kín mít!"
     },
     {
+        "id": "gmsg_4",
         "index": 4,
         "frame": "frame_4.png",
-        "start_us": 10500000,
-        "duration_us": 3500000, # 10.5s -> 14.0s
+        "sender": "Vy Dự Án (Sale)",
+        "role": "vy",
+        "text": "Khách xem video xong duyệt ký nghiệm thu luôn sếp ơi! Vừa bắn cọc 350 triệu chốt thêm 80 bộ phân khu hai nữa này sếp!",
         "sfx": "sfx_ting.mp3",
-        "sub": "VY DỰ ÁN: Khách bắn cọc 350 triệu chốt thêm 80 bộ! 🎉"
+        "sub": "VY DỰ ÁN: Khách bắn cọc 350 triệu chốt thêm 80 bộ nữa! 🎉"
     },
     {
+        "id": "gmsg_5",
         "index": 5,
         "frame": "frame_5.png",
-        "start_us": 14000000,
-        "duration_us": 4500000, # 14.0s -> 18.5s
+        "sender": "Vy Dự Án (Sale)",
+        "role": "narrator",
+        "text": "Cửa Thép Vân Gỗ Chống Cháy 90 Phút, Khóa Vân Tay Face ID Cao Cấp. Dự án giảm 20% chỉ 3 triệu 850 nghìn một mét vuông!",
         "sfx": "sfx_ting.mp3",
         "sub": "⭐ CỬA THÉP VÂN GỖ 90P - KHÓA FACE ID CAO CẤP ⭐"
     },
     {
+        "id": "gmsg_6",
         "index": 6,
         "frame": "frame_6.png",
-        "start_us": 18500000,
-        "duration_us": 3000000, # 18.5s -> 21.5s
+        "sender": "Thắng Công Trình",
+        "role": "thang",
+        "text": "Đội thợ em đang trên xe chở phụ kiện tới lắp hoàn thiện cho khách luôn đây sếp! Cửa thép bên mình vừa đẹp vừa chắc, khách khen nức nở!",
         "sfx": "sfx_ting.mp3",
         "sub": "THẮNG: Đang chở phụ kiện tới lắp hoàn thiện cho khách!"
     },
     {
+        "id": "gmsg_7",
         "index": 7,
         "frame": "frame_7.png",
-        "start_us": 21500000,
-        "duration_us": 3000000, # 21.5s -> 24.5s
+        "sender": "Hải Kỹ Thuật",
+        "role": "hai",
+        "text": "Thế chiều nay Sếp có khao xưởng tăng hai thịt dê lẩu bia không sếp ơi? Anh em làm tăng ca từ tối qua tới giờ đó!",
         "sfx": "sfx_ting.mp3",
-        "sub": "HẢI: Sếp có khao xưởng tăng 2 thịt dê lẩu bia không?! 😂"
+        "sub": "HẢI: Chiều Sếp có khao xưởng lẩu dê bia không sếp?! 😂"
     },
     {
+        "id": "gmsg_8",
         "index": 8,
         "frame": "frame_8.png",
-        "start_us": 24500000,
-        "duration_us": 2500000, # 24.5s -> 27.0s
+        "sender": "SẾP TỔNG",
+        "role": "sep",
+        "text": "Duyệt luôn! Chiều nay anh em xưởng cứ ăn chơi tẹt ga, Sếp lo tất!",
         "sfx": "sfx_pop.mp3",
         "sub": "SẾP TỔNG: 👍 DUYỆT LUÔN TĂNG 2 CHO ANH EM!"
     }
 ]
 
-TOTAL_DURATION_US = 27000000  # 27s
+
+def get_media_duration_us(file_path: str) -> int:
+    """Đo thời lượng file audio chính xác theo microsecond (us)"""
+    cmd = [
+        "ffprobe", "-v", "error",
+        "-show_entries", "format=duration",
+        "-of", "default=noprint_wrappers=1:nokey=1",
+        file_path
+    ]
+    sec = float(subprocess.check_output(cmd).decode().strip())
+    return int(round(sec * 1000000))
+
+
+def generate_voiceovers(target_assets_dir: Path):
+    """
+    Tạo 8 file lồng tiếng từng nhân vật:
+    - Sếp Tổng: Giọng nam trầm quyền lực phong cách ADAM (bass boost, -7% pitch)
+    - Hải Kỹ Thuật: Giọng nam trẻ trung, hào hứng
+    - Vy Sale: Giọng nữ ngọt ngào, hớn hở (+15% pitch)
+    - Thắng Công Trình: Giọng nam công trình khỏe khoắn
+    """
+    print("[VoiceEngine] Đang khởi tạo bộ giọng đọc lồng tiếng nhân vật...")
+    target_assets_dir.mkdir(parents=True, exist_ok=True)
+
+    for item in RAW_DIALOGUE:
+        voice_filename = f"voice_{item['index']}_{item['role']}.mp3"
+        raw_path = target_assets_dir / f"raw_{voice_filename}"
+        out_path = target_assets_dir / voice_filename
+
+        # Tạo file TTS thô
+        tts = gTTS(item["text"], lang="vi")
+        tts.save(str(raw_path))
+
+        # Hiệu ứng âm thanh cá nhân hóa theo từng nhân vật
+        if item["role"] == "sep":
+            # Phong cách ADAM: Trầm ấm, có lực, uy quyền của Sếp
+            filter_str = "asetrate=44100*0.93,aresample=44100,equalizer=f=120:width_type=o:width=1:g=5,volume=1.2"
+        elif item["role"] == "vy":
+            # Giọng nữ sale trẻ trung, dễ thương
+            filter_str = "asetrate=44100*1.15,aresample=44100,volume=1.1"
+        elif item["role"] == "narrator":
+            # Giọng thuyết minh sản phẩm rõ ràng, sắc nét
+            filter_str = "asetrate=44100*0.97,aresample=44100,volume=1.2"
+        else:
+            # Giọng nam kỹ thuật viên năng động, vui tươi
+            filter_str = "asetrate=44100*1.04,aresample=44100,volume=1.15"
+
+        cmd = [
+            "ffmpeg", "-y", "-i", str(raw_path),
+            "-af", filter_str,
+            "-b:a", "192k",
+            str(out_path)
+        ]
+        subprocess.check_call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if raw_path.exists():
+            raw_path.unlink()
+
+        dur_us = get_media_duration_us(str(out_path))
+        item["voice_file"] = voice_filename
+        item["voice_dur_us"] = dur_us
+        print(f" - [Voice {item['index']}] {item['sender']} ({item['role']}): {dur_us/1000000:.2f}s -> {voice_filename}")
+
+    print("[VoiceEngine] Đã tổng hợp thành công toàn bộ 8 file lồng tiếng nhân vật!")
 
 
 def ensure_frames_and_assets(target_assets_dir: Path):
@@ -129,7 +211,10 @@ def ensure_frames_and_assets(target_assets_dir: Path):
     else:
         print("[Generator] Các frames PNG đã có sẵn trong assets.")
 
-    # 2. Copy audio SFX
+    # 2. Sinh toàn bộ file giọng nói lồng tiếng
+    generate_voiceovers(target_assets_dir)
+
+    # 3. Copy audio SFX
     for sfx in ["sfx_ting.mp3", "sfx_pop.mp3"]:
         src = ASSETS_DIR / sfx
         dst = target_assets_dir / sfx
@@ -138,7 +223,7 @@ def ensure_frames_and_assets(target_assets_dir: Path):
         else:
             print(f"[Warning] Thiếu file âm thanh: {src}")
 
-    # 3. Copy Background và Product Media
+    # 4. Copy Background và Product Media
     for media in ["bg_anime_sky.jpg", "steel_door_product.jpg", "steel_door_logo.png"]:
         src = ASSETS_DIR / media
         dst = target_assets_dir / media
@@ -148,48 +233,103 @@ def ensure_frames_and_assets(target_assets_dir: Path):
     print(f"[Generator] Chuẩn bị assets hoàn tất trong: {target_assets_dir}")
 
 
+def calculate_synced_timeline(assets_dir: Path):
+    """
+    Tính toán thời gian biểu Timeline khớp từng microsecond theo độ dài thực tế của giọng đọc:
+    - Frame 0 (Màn hình chờ): 0.0s -> 0.5s (500,000 us)
+    - Từng câu thoại: Bắt đầu khi tin nhắn nảy lên, kéo dài bằng thời lượng giọng đọc + 0.3s nghỉ
+    """
+    timeline = []
+    current_time_us = 500000  # Bắt đầu câu đầu tiên ở 0.5s
+
+    # Bước 0: Màn hình mở đầu
+    timeline.append({
+        "index": 0,
+        "frame": "frame_0.png",
+        "start_us": 0,
+        "duration_us": 500000,
+        "sfx": None,
+        "voice": None,
+        "sub": ""
+    })
+
+    pause_between_us = 300000  # Nghỉ 0.3s giữa các câu nói để tự nhiên
+
+    for item in RAW_DIALOGUE:
+        voice_path = str(assets_dir / item["voice_file"])
+        voice_dur = get_media_duration_us(voice_path)
+        step_duration = voice_dur + pause_between_us
+
+        timeline.append({
+            "index": item["index"],
+            "frame": item["frame"],
+            "start_us": current_time_us,
+            "duration_us": step_duration,
+            "sfx": item["sfx"],
+            "voice": item["voice_file"],
+            "voice_dur_us": voice_dur,
+            "sub": item["sub"]
+        })
+
+        current_time_us += step_duration
+
+    total_us = current_time_us
+    print(f"[TimelineSync] Tổng thời lượng video được đồng bộ giọng đọc: {total_us / 1000000:.2f} giây.")
+    return timeline, total_us
+
+
 def build_capcut_project(output_root: Path, project_name: str) -> Path:
-    """Xây dựng Timeline CapCut với 4 Tracks: Background, Phone Screen, SFX, Subtitles"""
+    """Xây dựng Timeline CapCut 5 Tracks: Background, Phone Screen, SFX, Voiceover, Subtitles"""
     output_root.mkdir(parents=True, exist_ok=True)
     draft_folder = DraftFolder(str(output_root))
 
-    # Tạo draft mới 1080x1920 (9:16) 30fps
+    proj_dir = output_root / project_name
     print(f"[Generator] Khởi tạo CapCut Draft: {project_name} (1080x1920, 30fps)")
     script = draft_folder.create_draft(project_name, 1080, 1920, fps=30, allow_replace=True)
 
-    proj_dir = output_root / project_name
     proj_assets = proj_dir / "assets"
     ensure_frames_and_assets(proj_assets)
+    timeline_steps, total_duration_us = calculate_synced_timeline(proj_assets)
 
-    # Thêm 4 tracks theo đúng thứ tự hiển thị (z-order)
+    # Thêm 5 tracks theo đúng thứ tự (z-order)
     track_bg = script.append_track(TrackSpec(TrackType.video, name="Track_Background"))
     track_phone = script.append_track(TrackSpec(TrackType.video, name="Track_PhoneScreen"))
     track_sfx = script.append_track(TrackSpec(TrackType.audio, name="Track_AudioSFX"))
+    track_voice = script.append_track(TrackSpec(TrackType.audio, name="Track_Voiceover"))
     track_text = script.append_track(TrackSpec(TrackType.text, name="Track_Subtitles"))
 
-    # 1. Track 1: Nền Anime Sky (kéo dài suốt 27 giây)
+    # 1. Track 1: Nền Anime Sky (kéo dài suốt video)
     bg_file = str(proj_assets / "bg_anime_sky.jpg")
-    bg_seg = VideoSegment(bg_file, trange(0, TOTAL_DURATION_US))
+    bg_seg = VideoSegment(bg_file, trange(0, total_duration_us))
     script.add_segment(bg_seg, track="Track_Background")
 
     # 2. Track 2: Từng khung tin nhắn chat (Frame 0 -> 8)
-    for step in TIMELINE_SCENARIO:
+    for step in timeline_steps:
         f_path = str(proj_assets / step["frame"])
         seg = VideoSegment(f_path, trange(step["start_us"], step["duration_us"]))
         script.add_segment(seg, track="Track_PhoneScreen")
 
     # 3. Track 3: Âm thanh SFX (Ting & Pop tại thời điểm tin nhắn xuất hiện)
-    for step in TIMELINE_SCENARIO:
+    for step in timeline_steps:
         sfx_name = step.get("sfx")
         if sfx_name:
             sfx_file = str(proj_assets / sfx_name)
             sfx_mat = AudioMaterial(sfx_file)
             dur = min(sfx_mat.duration, step["duration_us"])
-            sfx_seg = AudioSegment(sfx_mat, trange(step["start_us"], dur))
+            sfx_seg = AudioSegment(sfx_mat, trange(step["start_us"], dur), volume=0.85)
             script.add_segment(sfx_seg, track="Track_AudioSFX")
 
-    # 4. Track 4: Phụ đề chạy chữ (Subtitles)
-    for step in TIMELINE_SCENARIO:
+    # 4. Track 4: Giọng Đọc Lồng Tiếng Voiceover Từng Nhân Vật
+    for step in timeline_steps:
+        voice_file = step.get("voice")
+        if voice_file:
+            v_path = str(proj_assets / voice_file)
+            v_mat = AudioMaterial(v_path)
+            v_seg = AudioSegment(v_mat, trange(step["start_us"], v_mat.duration), volume=1.3)
+            script.add_segment(v_seg, track="Track_Voiceover")
+
+    # 5. Track 5: Phụ đề chạy chữ (Subtitles)
+    for step in timeline_steps:
         sub_text = step.get("sub")
         if sub_text:
             text_style = TextStyle(size=7.5, color=(1.0, 1.0, 1.0), bold=True)
@@ -206,18 +346,18 @@ def build_capcut_project(output_root: Path, project_name: str) -> Path:
     script.save()
     print("[Generator] pyJianYingDraft đã lưu draft_content.json và draft_meta_info.json!")
 
-    # 5. HẬU KỲ CHUẨN HÓA ĐỘ KHẢ CHUYỂN (PORTABILITY POST-PROCESSING)
-    post_process_capcut_draft(proj_dir, project_name)
+    # 6. HẬU KỲ CHUẨN HÓA ĐỘ KHẢ CHUYỂN (PORTABILITY POST-PROCESSING)
+    post_process_capcut_draft(proj_dir, project_name, total_duration_us)
 
     return proj_dir
 
 
-def post_process_capcut_draft(proj_dir: Path, project_name: str):
+def post_process_capcut_draft(proj_dir: Path, project_name: str, total_duration_us: int):
     """
     Chuẩn hóa dự án để tương thích 100% với CapCut Quốc Tế & JianYing trên mọi máy tính:
     1. Thay thế đường dẫn máy ảo bằng placeholder di động: ##_draftpath_placeholder_{draft_id}_##
     2. Đăng ký tài nguyên vào draft_materials của draft_meta_info.json để tránh bảng báo Relink Media
-    3. Thêm file thông tin hướng dẫn
+    3. Đảm bảo tỷ lệ 9:16 và thời lượng khớp chính xác
     """
     content_file = proj_dir / "draft_content.json"
     meta_file = proj_dir / "draft_meta_info.json"
@@ -232,7 +372,7 @@ def post_process_capcut_draft(proj_dir: Path, project_name: str):
     content["id"] = draft_id
     meta["draft_id"] = draft_id
     meta["draft_name"] = project_name
-    meta["tm_duration"] = TOTAL_DURATION_US
+    meta["tm_duration"] = total_duration_us
     if "canvas_config" in content:
         content["canvas_config"]["ratio"] = "9:16"
 
@@ -246,7 +386,6 @@ def post_process_capcut_draft(proj_dir: Path, project_name: str):
     for vid in content.get("materials", {}).get("videos", []):
         old_path = vid.get("path", "")
         filename = Path(old_path).name
-        # Đặt đường dẫn tương đối qua placeholder
         relative_placeholder_path = f"{placeholder_prefix}/assets/{filename}"
         vid["path"] = relative_placeholder_path
 
@@ -268,7 +407,7 @@ def post_process_capcut_draft(proj_dir: Path, project_name: str):
             "width": vid.get("width", 1080)
         })
 
-    # Xử lý Audios
+    # Xử lý Audios (SFX + Voiceovers)
     for aud in content.get("materials", {}).get("audios", []):
         old_path = aud.get("path", "")
         filename = Path(old_path).name
@@ -315,18 +454,33 @@ def post_process_capcut_draft(proj_dir: Path, project_name: str):
     print("[Generator] Đã chuẩn hóa đường dẫn di động và manifest tài nguyên thành công!")
 
 
-def create_user_guide(proj_dir: Path):
+def create_user_guide(proj_dir: Path, total_duration_s: float):
     """Tạo file HƯỚNG_DẪN_SỬ_DỤNG_CAPCUT.txt đính kèm"""
-    guide_text = """================================================================================
+    guide_text = f"""================================================================================
 🎬 HƯỚNG DẪN MỞ DỰ ÁN CAPCUT TRÊN MÁY TÍNH (WINDOWS & MAC)
 Chủ đề: Văn Phòng Công Ty Cửa Thép Luxury - Nghiệm Thu Biệt Thự & Test Búa Tạ
+Thời lượng: {total_duration_s:.1f} giây • 5 Tracks Dựng Sẵn • Lồng Tiếng Đa Nhân Vật
 ================================================================================
 
 Dự án này đã được tự động dựng sẵn 100% gồm:
 1. Track Nền: Bầu trời Anime Pastel chuẩn 9:16 (1080x1920)
-2. Track Giao Diện: Toàn bộ 8 câu thoại chat văn phòng công ty Cửa Thép
-3. Track Âm Thanh: Hiệu ứng Ting & Pop Messenger khớp từng khung hình
-4. Track Phụ Đề: Chữ chạy Subtitle nổi bật cho người xem lướt không bật tiếng
+2. Track Giao Diện: Toàn bộ 8 khung hình tin nhắn chat iPhone Retina
+3. Track Âm Thanh SFX: Hiệu ứng Ting & Pop Messenger khớp từng khung hình
+4. Track Giọng Đọc (Voiceover): 
+   - Giọng Sếp Tổng: Nam trầm quyền lực chuẩn phong cách ADAM
+   - Giọng Hải Kỹ Thuật: Nam trẻ trung năng động
+   - Giọng Vy Sale: Nữ tươi vui báo nổ cọc 350 triệu
+   - Giọng Thắng Công Trình: Nam công trình khỏe khoắn
+5. Track Phụ Đề (Subtitles): Chữ chạy Subtitle nổi bật viền đen
+
+--------------------------------------------------------------------------------
+💡 MẸO ĐỔI SANG CÁC GIỌNG AI KHÁC TRỰC TIẾP TRONG CAPCUT:
+--------------------------------------------------------------------------------
+- Nếu bạn muốn đổi sang giọng ADAM nguyên bản tiếng Anh của CapCut hoặc các giọng 
+  tiếng Việt như "Thanh Niên", "Cô Gái Tự Tin", "Nam Truyền Cảm":
+  1. Nhấp chọn Track Phụ Đề (Subtitles) trên dòng thời gian CapCut.
+  2. Ở góc trên bên phải, bấm vào tab [Văn bản thành giọng nói] (Text to Speech).
+  3. Chọn giọng đọc bạn thích rồi bấm [Áp dụng] -> CapCut sẽ tự đổi giọng ngay!
 
 --------------------------------------------------------------------------------
 👉 BƯỚC 1: COPY DỰ ÁN VÀO THƯ MỤC CAPCUT DRAFT CỦA BẠN
@@ -353,10 +507,9 @@ Hãy copy toàn bộ thư mục [Cua_Thep_TikTok_Luxury] vào đúng đường d
 --------------------------------------------------------------------------------
 1. Khởi động phần mềm CapCut Desktop trên máy tính.
 2. Ngay trên màn hình chính của CapCut, bạn sẽ thấy ngay dự án:
-   "Cua_Thep_TikTok_Luxury" (Thời lượng 27s).
-3. Bấm mở dự án -> Toàn bộ timeline đã được cắt ghép hoàn chỉnh.
-4. Bạn có thể chèn thêm nhạc nền TikTok hot trend nếu thích, hoặc bấm ngay:
-   [Export] (phím tắt Ctrl + E trên Windows hoặc Cmd + E trên Mac).
+   "Cua_Thep_TikTok_Luxury" (Thời lượng ~{total_duration_s:.0f}s).
+3. Bấm mở dự án -> Toàn bộ 5 tracks đã khớp giọng đọc và chữ chạy.
+4. Bấm ngay: [Export] (phím tắt Ctrl + E trên Windows hoặc Cmd + E trên Mac).
 5. Chọn độ phân giải: 1080p, 60fps, Bitrate: Recommended.
 6. Bấm [Export] -> CapCut dùng GPU máy tính xuất video trong 3-5 giây!
 
@@ -387,10 +540,16 @@ def package_to_zip(proj_dir: Path, zip_dest: Path):
 def main():
     print("=" * 60)
     print("🎬 CAPCUT DRAFT GENERATOR - TIKTOK CHAT STUDIO LUXURY")
+    print("🔊 TÍCH HỢP BỘ GIỌNG ĐỌC LỒNG TIẾNG ĐA NHÂN VẬT (ADAM STYLE)")
     print("=" * 60)
 
     proj_dir = build_capcut_project(OUTPUT_DIR, PROJECT_NAME)
-    create_user_guide(proj_dir)
+    
+    with open(proj_dir / "draft_meta_info.json", "r", encoding="utf-8") as f:
+        meta = json.load(f)
+    total_dur_s = meta.get("tm_duration", 43000000) / 1000000.0
+
+    create_user_guide(proj_dir, total_dur_s)
     package_to_zip(proj_dir, ZIP_PATH)
 
     # Copy một bản zip vào assets/ để web frontend có thể download được trực tiếp
@@ -398,8 +557,9 @@ def main():
     shutil.copy2(ZIP_PATH, public_zip)
     print(f"[Generator] Đã sao chép gói zip tới assets công khai: {public_zip}")
 
-    print("\n✅ HOÀN TẤT XUẤT SẮC DỰ ÁN CAPCUT DRAFT!")
+    print("\n✅ HOÀN TẤT XUẤT SẮC DỰ ÁN CAPCUT DRAFT KÈM GIỌNG ĐỌC!")
     print(f"📁 Thư mục Draft: {proj_dir}")
+    print(f"⏱️ Tổng thời lượng: {total_dur_s:.1f} giây")
     print(f"📦 File Zip phân phối: {ZIP_PATH}")
     print(f"🌐 Link Web Assets: assets/{PROJECT_NAME}.zip")
 
