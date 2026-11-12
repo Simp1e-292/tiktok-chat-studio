@@ -57,29 +57,29 @@ RAW_DIALOGUE = [
         "frame": "frame_1.png",
         "sender": "SẾP TỔNG",
         "role": "sep",
-        "text": "Hải Kỹ Thuật! Camera xưởng báo động đỏ! Cậu vừa lái xe nâng húc thẳng vào cửa chính công ty đấy à?!",
+        "text": "Vy ơi! Tình hình đi chốt cọc một trăm bộ cửa thép biệt thự cho bác đại gia thế nào rồi?!",
         "sfx": "sfx_pop.mp3",
-        "sub": "SẾP TỔNG: Cậu vừa lái xe nâng húc thẳng vào cửa chính đấy à?!"
+        "sub": "SẾP TỔNG: Chốt cọc 100 bộ cửa thép cho đại gia thế nào rồi?!"
     },
     {
         "id": "gmsg_2",
         "index": 2,
         "frame": "frame_2.png",
-        "sender": "Hải Kỹ Thuật",
-        "role": "hai",
-        "text": "Oan cho em quá Sếp ơi! Em đang test độ bền cửa thép chịu lực mười tấn cho khách xem thôi mà!",
+        "sender": "Vy Dự Án (Sale)",
+        "role": "vy",
+        "text": "Ban đầu bác chủ nhà khó tính lắm Sếp, bảo cửa thép mà không cách âm thì không lấy!",
         "sfx": "sfx_ting.mp3",
-        "sub": "HẢI KT: Em đang test độ bền chịu lực 10 tấn thôi mà! 😅"
+        "sub": "VY SALE: Bác bảo cửa thép mà không cách âm thì không lấy! 😅"
     },
     {
         "id": "gmsg_3",
         "index": 3,
         "frame": "frame_3.png",
-        "sender": "Vy Kế Toán",
-        "role": "vy",
-        "text": "Báo cáo Sếp: Xe nâng gãy đôi càng rồi ạ, còn cánh cửa thép thì đến một vết xước cũng không có!",
+        "sender": "Hải Kỹ Thuật",
+        "role": "hai",
+        "text": "Thế là em đứng ngoài gào như loa phường, còn bác đứng trong phòng nghe nhạc thiền êm ru Sếp ạ!",
         "sfx": "sfx_ting.mp3",
-        "sub": "VY KẾ TOÁN: Xe nâng gãy đôi càng, cửa thì không một vết xước! 😂"
+        "sub": "HẢI KT: Em gào như loa phường, bác nghe nhạc thiền êm ru! 😂"
     },
     {
         "id": "gmsg_4",
@@ -87,39 +87,39 @@ RAW_DIALOGUE = [
         "frame": "frame_4.png",
         "sender": "Thắng Công Trình",
         "role": "thang",
-        "text": "Em vừa lấy búa tạ mười cân phang thử, búa nảy ngược lại suýt đập trúng trán em đây này Sếp!",
+        "text": "Chưa hết đâu Sếp, bác còn dắt cả con chó Bec-giê ra cắn thử cửa, chó gãy cụt mất một cái răng!",
         "sfx": "sfx_ting.mp3",
-        "sub": "THẮNG: Búa tạ 10kg đập vào nảy ngược lại suýt trúng trán! 🔨"
+        "sub": "THẮNG: Bác dắt chó Bec-giê ra cắn thử, chó gãy cụt cái răng! 🐕"
     },
     {
         "id": "gmsg_5",
         "index": 5,
         "frame": "frame_5.png",
-        "sender": "Hải Kỹ Thuật",
-        "role": "hai",
-        "text": "Cửa thép nhà mình thế này trộm vào chỉ có nước ngồi khóc xin ngụm nước rồi đi về thôi Sếp ạ!",
+        "sender": "Vy Dự Án (Sale)",
+        "role": "vy",
+        "text": "Bác ưng quá cười bảo: Cửa này vợ tao cằn nhằn đóng cửa là yên tĩnh tuyệt đối! Bác chuyển cọc luôn hai trăm triệu!",
         "sfx": "sfx_ting.mp3",
-        "sub": "HẢI KT: Trộm vào chỉ có nước ngồi khóc xin nước rồi về! 🤣"
+        "sub": "VY SALE: Cửa này vợ cằn nhằn đóng lại là yên! Bác cọc 200tr! 💸"
     },
     {
         "id": "gmsg_6",
         "index": 6,
         "frame": "frame_6.png",
-        "sender": "Vy Kế Toán",
-        "role": "vy",
-        "text": "Cửa đỉnh thật nhưng tiền sửa xe nâng năm triệu thì trừ vào lương anh Hải hay lương Sếp đây ạ?",
-        "sfx": "sfx_ting.mp3",
-        "sub": "VY KẾ TOÁN: Tiền sửa xe nâng 5 triệu trừ lương ai đây ạ? 📝"
+        "sender": "SẾP TỔNG",
+        "role": "sep",
+        "text": "Haha đỉnh quá! Thế tiền cọc hai trăm triệu đã nổi trong tài khoản công ty chưa?!",
+        "sfx": "sfx_pop.mp3",
+        "sub": "SẾP TỔNG: Haha đỉnh! Tiền cọc 200tr đã nổi tài khoản chưa?!"
     },
     {
         "id": "gmsg_7",
         "index": 7,
         "frame": "frame_7.png",
-        "sender": "Hải Kỹ Thuật",
-        "role": "hai",
-        "text": "Ủa em Vy?! Người cùng một nhà sao em quay xe khét lẹt vậy em?! Cứu em Sếp ơi!",
+        "sender": "Vy Dự Án (Sale)",
+        "role": "vy",
+        "text": "Dạ nổi rồi ạ! Nhưng bác trừ lại hai triệu tiền đi bọc răng sứ cho con Bec-giê Sếp ơi!",
         "sfx": "sfx_ting.mp3",
-        "sub": "HẢI KT: Người một nhà sao em quay xe khét lẹt vậy em?! 😭"
+        "sub": "VY SALE: Nổi rồi ạ! Nhưng bác trừ 2tr bọc răng sứ cho chó! 🦷"
     },
     {
         "id": "gmsg_8",
@@ -127,9 +127,9 @@ RAW_DIALOGUE = [
         "frame": "frame_8.png",
         "sender": "SẾP TỔNG",
         "role": "sep",
-        "text": "Trừ lương Hải! Nhưng tối nay Sếp bao cả xưởng nồi lẩu dê vì cửa quá đỉnh! Duyệt luôn!",
+        "text": "Trừ vào lương Hải! Còn lại tối nay Sếp bao cả công ty liên hoan bia hơi ăn mừng! Duyệt luôn!",
         "sfx": "sfx_pop.mp3",
-        "sub": "SẾP TỔNG: Trừ lương Hải! Nhưng tối nay Sếp bao lẩu dê cả xưởng! 👍"
+        "sub": "SẾP TỔNG: Trừ lương Hải! Tối nay Sếp bao bia hơi cả công ty! 👍"
     }
 ]
 

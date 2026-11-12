@@ -18,7 +18,7 @@ const defaultCharacters = [
     },
     {
         id: "char_vy",
-        name: "Vy Kế Toán",
+        name: "Vy Dự Án (Sale)",
         avatar: "assets/avatar_vy.png",
         role: "customer",
         pitch: 1.25
@@ -291,8 +291,8 @@ function deleteCharacter(idx) {
 // ============================================================================
 let scenarios = {
     scenario_group_cuathep: {
-        title: "🏢 [HÀI HƯỚC CỬA THÉP] Test Xe Nâng Húc Cửa & Pha Quay Xe Của Kế Toán",
-        desc: "Drama hài hước văn phòng Cửa Thép: Hải KT test cửa chịu lực 10 tấn, xe nâng gãy càng cửa không xước, kế toán đòi trừ 5 triệu, Sếp chốt bao lẩu dê.",
+        title: "🏢 [HÀI HƯỚC CHỐT CỌC] Bác Đại Gia Test Cách Âm & Chó Bec-Giê Bọc Răng Sứ",
+        desc: "Drama hài hước đi chốt cọc 100 bộ cửa thép: Bác đại gia test cách âm chống vợ cằn nhằn, chó cắn gãy răng, cọc 200 triệu trừ 2 triệu làm răng chó.",
         theme: "group_messenger",
         groupName: "Văn Phòng Cửa Thép Luxury",
         groupUnread: 8,
@@ -305,25 +305,25 @@ let scenarios = {
                 senderId: "char_sep",
                 senderName: "SẾP TỔNG",
                 type: "text",
-                content: "Hải Kỹ Thuật! Camera xưởng báo động đỏ! Cậu vừa lái xe nâng húc thẳng vào cửa chính công ty đấy à?!",
-                delay: 1700,
+                content: "Vy ơi! Tình hình đi chốt cọc 100 bộ cửa thép biệt thự cho bác đại gia thế nào rồi?!",
+                delay: 1600,
                 sfx: "pop"
             },
             {
                 id: "gmsg_2",
-                senderId: "char_hai",
-                senderName: "Hải Kỹ Thuật",
+                senderId: "char_vy",
+                senderName: "Vy Dự Án (Sale)",
                 type: "text",
-                content: "Oan cho em quá Sếp ơi! Em đang test độ bền cửa thép chịu lực 10 tấn cho khách xem thôi mà! 😅",
-                delay: 1600,
+                content: "Ban đầu bác chủ nhà khó tính lắm Sếp, bảo cửa thép mà không cách âm thì không lấy! 😅",
+                delay: 1500,
                 sfx: "ting"
             },
             {
                 id: "gmsg_3",
-                senderId: "char_vy",
-                senderName: "Vy Kế Toán",
+                senderId: "char_hai",
+                senderName: "Hải Kỹ Thuật",
                 type: "text",
-                content: "Báo cáo Sếp: Xe nâng gãy đôi càng rồi ạ, còn cánh cửa thép thì đến một vết xước cũng không có! 😂",
+                content: "Thế là em đứng ngoài gào như loa phường, còn bác đứng trong phòng nghe nhạc thiền êm ru Sếp ạ! 😂",
                 delay: 1500,
                 sfx: "ting"
             },
@@ -332,35 +332,35 @@ let scenarios = {
                 senderId: "char_thang",
                 senderName: "Thắng Công Trình",
                 type: "text",
-                content: "Em vừa lấy búa tạ 10 cân phang thử, búa nảy ngược lại suýt đập trúng trán em đây này Sếp! 🔨",
+                content: "Chưa hết đâu Sếp, bác còn dắt cả con chó Bec-giê ra cắn thử cửa, chó gãy cụt mất một cái răng! 🐕",
                 delay: 1500,
                 sfx: "ting"
             },
             {
                 id: "gmsg_5",
-                senderId: "char_hai",
-                senderName: "Hải Kỹ Thuật",
+                senderId: "char_vy",
+                senderName: "Vy Dự Án (Sale)",
                 type: "text",
-                content: "Cửa thép nhà mình thế này trộm vào chỉ có nước ngồi khóc xin ngụm nước rồi đi về thôi Sếp ạ! 🤣",
-                delay: 1500,
+                content: "Bác ưng quá cười bảo: 'Cửa này vợ tao cằn nhằn đóng cửa là yên tĩnh tuyệt đối!' Bác chuyển cọc luôn 200 triệu! 💸",
+                delay: 1600,
                 sfx: "ting"
             },
             {
                 id: "gmsg_6",
-                senderId: "char_vy",
-                senderName: "Vy Kế Toán",
+                senderId: "char_sep",
+                senderName: "SẾP TỔNG",
                 type: "text",
-                content: "Cửa đỉnh thật nhưng tiền sửa xe nâng 5 triệu thì trừ vào lương anh Hải hay lương Sếp đây ạ? 📝",
+                content: "Haha đỉnh quá! Thế tiền cọc 200 triệu đã nổi trong tài khoản công ty chưa?!",
                 delay: 1500,
-                sfx: "ting"
+                sfx: "pop"
             },
             {
                 id: "gmsg_7",
-                senderId: "char_hai",
-                senderName: "Hải Kỹ Thuật",
+                senderId: "char_vy",
+                senderName: "Vy Dự Án (Sale)",
                 type: "text",
-                content: "Ủa em Vy?! Người cùng một nhà sao em quay xe khét lẹt vậy em?! Cứu em Sếp ơi! 😭",
-                delay: 1400,
+                content: "Dạ nổi rồi ạ! Nhưng bác trừ lại 2 triệu tiền đi bọc răng sứ cho con Bec-giê Sếp ơi! 🦷",
+                delay: 1500,
                 sfx: "ting"
             },
             {
@@ -368,7 +368,7 @@ let scenarios = {
                 senderId: "char_sep",
                 senderName: "SẾP TỔNG",
                 type: "text",
-                content: "Trừ lương Hải! Nhưng tối nay Sếp bao cả xưởng nồi lẩu dê vì cửa quá đỉnh! Duyệt luôn! 👍",
+                content: "Trừ vào lương Hải! Còn lại tối nay Sếp bao cả công ty liên hoan bia hơi ăn mừng! Duyệt luôn! 👍",
                 delay: 1200,
                 sfx: "pop"
             }
