@@ -18,7 +18,7 @@ const defaultCharacters = [
     },
     {
         id: "char_vy",
-        name: "Vy Dự Án (Sale)",
+        name: "Vy Kế Toán",
         avatar: "assets/avatar_vy.png",
         role: "customer",
         pitch: 1.25
@@ -291,8 +291,8 @@ function deleteCharacter(idx) {
 // ============================================================================
 let scenarios = {
     scenario_group_cuathep: {
-        title: "🏢 [HOT CỬA THÉP] Nghiệm Thu Biệt Thự & Test Búa Tạ Không Móp",
-        desc: "Drama văn phòng công ty Cửa Thép: Giục nghiệm thu biệt thự, thợ dùng búa tạ và đèn khò test cửa không xước không móp, khách duyệt nổ cọc khủng.",
+        title: "🏢 [HÀI HƯỚC CỬA THÉP] Test Xe Nâng Húc Cửa & Pha Quay Xe Của Kế Toán",
+        desc: "Drama hài hước văn phòng Cửa Thép: Hải KT test cửa chịu lực 10 tấn, xe nâng gãy càng cửa không xước, kế toán đòi trừ 5 triệu, Sếp chốt bao lẩu dê.",
         theme: "group_messenger",
         groupName: "Văn Phòng Cửa Thép Luxury",
         groupUnread: 8,
@@ -305,7 +305,7 @@ let scenarios = {
                 senderId: "char_sep",
                 senderName: "SẾP TỔNG",
                 type: "text",
-                content: "@Hải Kỹ Thuật ơi! Khách bên biệt thự Vinhome gọi giục nghiệm thu 50 bộ Cửa Thép Vân Gỗ. Hôm qua chủ nhà cho thợ cầm búa tạ với đèn khò ra đập thử, kết quả thế nào rồi?!",
+                content: "Hải Kỹ Thuật! Camera xưởng báo động đỏ! Cậu vừa lái xe nâng húc thẳng vào cửa chính công ty đấy à?!",
                 delay: 1700,
                 sfx: "pop"
             },
@@ -314,47 +314,43 @@ let scenarios = {
                 senderId: "char_hai",
                 senderName: "Hải Kỹ Thuật",
                 type: "text",
-                content: "Sếp yên tâm 100%! Em quay clip gửi sếp xem: Đập búa tạ 5kg mỏi cả tay không móp một ly! Sơn tĩnh điện vân gỗ Lim Nam Phi chống trầy xước tuyệt đối!",
+                content: "Oan cho em quá Sếp ơi! Em đang test độ bền cửa thép chịu lực 10 tấn cho khách xem thôi mà! 😅",
                 delay: 1600,
                 sfx: "ting"
             },
             {
                 id: "gmsg_3",
-                senderId: "char_hai",
-                senderName: "Hải Kỹ Thuật",
+                senderId: "char_vy",
+                senderName: "Vy Kế Toán",
                 type: "text",
-                content: "Test đèn khò 1000°C gioăng chống cháy tự phồng nở kín mít, khói độc không lọt được vào một milimet!",
+                content: "Báo cáo Sếp: Xe nâng gãy đôi càng rồi ạ, còn cánh cửa thép thì đến một vết xước cũng không có! 😂",
                 delay: 1500,
                 sfx: "ting"
             },
             {
                 id: "gmsg_4",
-                senderId: "char_vy",
-                senderName: "Vy Dự Án (Sale)",
+                senderId: "char_thang",
+                senderName: "Thắng Công Trình",
                 type: "text",
-                content: "Khách xem video xong duyệt ký nghiệm thu luôn sếp ơi! Vừa bắn cọc 350 triệu chốt thêm 80 bộ cho phân khu 2 nữa này sếp! 🎉",
-                delay: 1600,
+                content: "Em vừa lấy búa tạ 10 cân phang thử, búa nảy ngược lại suýt đập trúng trán em đây này Sếp! 🔨",
+                delay: 1500,
                 sfx: "ting"
             },
             {
                 id: "gmsg_5",
-                senderId: "char_vy",
-                senderName: "Vy Dự Án (Sale)",
-                type: "product_card",
-                content: "Cửa Thép Vân Gỗ Chống Cháy 90P - Khóa Vân Tay Face ID Cao Cấp",
-                image: "assets/steel_door_product.jpg",
-                price: "3.850.000₫ / m²",
-                discount: "🔥 DỰ ÁN GIẢM 20%",
-                cta: "📞 Đặt Lịch Đo Đạc Công Trình Miễn Phí",
-                delay: 2000,
-                sfx: "special"
+                senderId: "char_hai",
+                senderName: "Hải Kỹ Thuật",
+                type: "text",
+                content: "Cửa thép nhà mình thế này trộm vào chỉ có nước ngồi khóc xin ngụm nước rồi đi về thôi Sếp ạ! 🤣",
+                delay: 1500,
+                sfx: "ting"
             },
             {
                 id: "gmsg_6",
-                senderId: "char_thang",
-                senderName: "Thắng Công Trình",
+                senderId: "char_vy",
+                senderName: "Vy Kế Toán",
                 type: "text",
-                content: "Đội thợ em đang trên xe chở phụ kiện tới lắp hoàn thiện cho khách luôn đây sếp! Cửa thép bên mình vừa đẹp vừa chắc, khách khen nức nở!",
+                content: "Cửa đỉnh thật nhưng tiền sửa xe nâng 5 triệu thì trừ vào lương anh Hải hay lương Sếp đây ạ? 📝",
                 delay: 1500,
                 sfx: "ting"
             },
@@ -363,7 +359,7 @@ let scenarios = {
                 senderId: "char_hai",
                 senderName: "Hải Kỹ Thuật",
                 type: "text",
-                content: "Thế chiều nay Sếp có khao xưởng tăng 2 thịt dê lẩu bia không sếp ơi? Anh em làm tăng ca từ tối qua tới giờ đó 😂",
+                content: "Ủa em Vy?! Người cùng một nhà sao em quay xe khét lẹt vậy em?! Cứu em Sếp ơi! 😭",
                 delay: 1400,
                 sfx: "ting"
             },
@@ -371,9 +367,9 @@ let scenarios = {
                 id: "gmsg_8",
                 senderId: "char_sep",
                 senderName: "SẾP TỔNG",
-                type: "like_sticker",
-                content: "👍",
-                delay: 900,
+                type: "text",
+                content: "Trừ lương Hải! Nhưng tối nay Sếp bao cả xưởng nồi lẩu dê vì cửa quá đỉnh! Duyệt luôn! 👍",
+                delay: 1200,
                 sfx: "pop"
             }
         ]
