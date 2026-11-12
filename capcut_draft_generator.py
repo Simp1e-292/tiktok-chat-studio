@@ -57,9 +57,9 @@ RAW_DIALOGUE = [
         "frame": "frame_1.png",
         "sender": "SẾP TỔNG",
         "role": "sep",
-        "text": "Hải Kỹ Thuật ơi! Khách bên biệt thự Vinhome gọi giục nghiệm thu 50 bộ Cửa Thép Vân Gỗ. Đập búa tạ và khò lửa test thế nào rồi?!",
+        "text": "Hải Kỹ Thuật! Camera xưởng báo động đỏ! Cậu vừa lái xe nâng húc thẳng vào cửa chính công ty đấy à?!",
         "sfx": "sfx_pop.mp3",
-        "sub": "SẾP TỔNG: Nghiệm thu biệt thự Vinhome 50 bộ Cửa Thép thế nào rồi?!"
+        "sub": "SẾP TỔNG: Cậu vừa lái xe nâng húc thẳng vào cửa chính đấy à?!"
     },
     {
         "id": "gmsg_2",
@@ -67,49 +67,49 @@ RAW_DIALOGUE = [
         "frame": "frame_2.png",
         "sender": "Hải Kỹ Thuật",
         "role": "hai",
-        "text": "Sếp yên tâm 100%! Đập búa tạ 5kg mỏi cả tay không móp một ly! Sơn vân gỗ Lim Nam Phi chống trầy xước tuyệt đối!",
+        "text": "Oan cho em quá Sếp ơi! Em đang test độ bền cửa thép chịu lực mười tấn cho khách xem thôi mà!",
         "sfx": "sfx_ting.mp3",
-        "sub": "HẢI KỸ THUẬT: Đập búa tạ 5kg mỏi tay không móp một ly!"
+        "sub": "HẢI KT: Em đang test độ bền chịu lực 10 tấn thôi mà! 😅"
     },
     {
         "id": "gmsg_3",
         "index": 3,
         "frame": "frame_3.png",
-        "sender": "Hải Kỹ Thuật",
-        "role": "hai",
-        "text": "Test đèn khò 1000 độ C gioăng chống cháy tự phồng nở kín mít, khói độc không lọt được vào một milimet!",
+        "sender": "Vy Kế Toán",
+        "role": "vy",
+        "text": "Báo cáo Sếp: Xe nâng gãy đôi càng rồi ạ, còn cánh cửa thép thì đến một vết xước cũng không có!",
         "sfx": "sfx_ting.mp3",
-        "sub": "HẢI: Đèn khò 1000°C gioăng chống cháy tự nở kín mít!"
+        "sub": "VY KẾ TOÁN: Xe nâng gãy đôi càng, cửa thì không một vết xước! 😂"
     },
     {
         "id": "gmsg_4",
         "index": 4,
         "frame": "frame_4.png",
-        "sender": "Vy Dự Án (Sale)",
-        "role": "vy",
-        "text": "Khách xem video xong duyệt ký nghiệm thu luôn sếp ơi! Vừa bắn cọc 350 triệu chốt thêm 80 bộ phân khu hai nữa này sếp!",
+        "sender": "Thắng Công Trình",
+        "role": "thang",
+        "text": "Em vừa lấy búa tạ mười cân phang thử, búa nảy ngược lại suýt đập trúng trán em đây này Sếp!",
         "sfx": "sfx_ting.mp3",
-        "sub": "VY DỰ ÁN: Khách bắn cọc 350 triệu chốt thêm 80 bộ nữa! 🎉"
+        "sub": "THẮNG: Búa tạ 10kg đập vào nảy ngược lại suýt trúng trán! 🔨"
     },
     {
         "id": "gmsg_5",
         "index": 5,
         "frame": "frame_5.png",
-        "sender": "Vy Dự Án (Sale)",
-        "role": "narrator",
-        "text": "Cửa Thép Vân Gỗ Chống Cháy 90 Phút, Khóa Vân Tay Face ID Cao Cấp. Dự án giảm 20% chỉ 3 triệu 850 nghìn một mét vuông!",
+        "sender": "Hải Kỹ Thuật",
+        "role": "hai",
+        "text": "Cửa thép nhà mình thế này trộm vào chỉ có nước ngồi khóc xin ngụm nước rồi đi về thôi Sếp ạ!",
         "sfx": "sfx_ting.mp3",
-        "sub": "⭐ CỬA THÉP VÂN GỖ 90P - KHÓA FACE ID CAO CẤP ⭐"
+        "sub": "HẢI KT: Trộm vào chỉ có nước ngồi khóc xin nước rồi về! 🤣"
     },
     {
         "id": "gmsg_6",
         "index": 6,
         "frame": "frame_6.png",
-        "sender": "Thắng Công Trình",
-        "role": "thang",
-        "text": "Đội thợ em đang trên xe chở phụ kiện tới lắp hoàn thiện cho khách luôn đây sếp! Cửa thép bên mình vừa đẹp vừa chắc, khách khen nức nở!",
+        "sender": "Vy Kế Toán",
+        "role": "vy",
+        "text": "Cửa đỉnh thật nhưng tiền sửa xe nâng năm triệu thì trừ vào lương anh Hải hay lương Sếp đây ạ?",
         "sfx": "sfx_ting.mp3",
-        "sub": "THẮNG: Đang chở phụ kiện tới lắp hoàn thiện cho khách!"
+        "sub": "VY KẾ TOÁN: Tiền sửa xe nâng 5 triệu trừ lương ai đây ạ? 📝"
     },
     {
         "id": "gmsg_7",
@@ -117,9 +117,9 @@ RAW_DIALOGUE = [
         "frame": "frame_7.png",
         "sender": "Hải Kỹ Thuật",
         "role": "hai",
-        "text": "Thế chiều nay Sếp có khao xưởng tăng hai thịt dê lẩu bia không sếp ơi? Anh em làm tăng ca từ tối qua tới giờ đó!",
+        "text": "Ủa em Vy?! Người cùng một nhà sao em quay xe khét lẹt vậy em?! Cứu em Sếp ơi!",
         "sfx": "sfx_ting.mp3",
-        "sub": "HẢI: Chiều Sếp có khao xưởng lẩu dê bia không sếp?! 😂"
+        "sub": "HẢI KT: Người một nhà sao em quay xe khét lẹt vậy em?! 😭"
     },
     {
         "id": "gmsg_8",
@@ -127,9 +127,9 @@ RAW_DIALOGUE = [
         "frame": "frame_8.png",
         "sender": "SẾP TỔNG",
         "role": "sep",
-        "text": "Duyệt luôn! Chiều nay anh em xưởng cứ ăn chơi tẹt ga, Sếp lo tất!",
+        "text": "Trừ lương Hải! Nhưng tối nay Sếp bao cả xưởng nồi lẩu dê vì cửa quá đỉnh! Duyệt luôn!",
         "sfx": "sfx_pop.mp3",
-        "sub": "SẾP TỔNG: 👍 DUYỆT LUÔN TĂNG 2 CHO ANH EM!"
+        "sub": "SẾP TỔNG: Trừ lương Hải! Nhưng tối nay Sếp bao lẩu dê cả xưởng! 👍"
     }
 ]
 
@@ -169,16 +169,16 @@ def generate_voiceovers(target_assets_dir: Path):
         # Hiệu ứng âm thanh cá nhân hóa theo từng nhân vật
         if item["role"] == "sep":
             # Phong cách ADAM: Trầm ấm, có lực, uy quyền của Sếp
-            filter_str = "asetrate=44100*0.93,aresample=44100,equalizer=f=120:width_type=o:width=1:g=5,volume=1.2"
+            filter_str = "atempo=1.15,asetrate=44100*0.93,aresample=44100,equalizer=f=120:width_type=o:width=1:g=5,volume=1.25"
         elif item["role"] == "vy":
             # Giọng nữ sale trẻ trung, dễ thương
-            filter_str = "asetrate=44100*1.15,aresample=44100,volume=1.1"
+            filter_str = "atempo=1.15,asetrate=44100*1.15,aresample=44100,volume=1.15"
         elif item["role"] == "narrator":
             # Giọng thuyết minh sản phẩm rõ ràng, sắc nét
-            filter_str = "asetrate=44100*0.97,aresample=44100,volume=1.2"
+            filter_str = "atempo=1.15,asetrate=44100*1.02,aresample=44100,volume=1.15"
         else:
             # Giọng nam kỹ thuật viên năng động, vui tươi
-            filter_str = "asetrate=44100*1.04,aresample=44100,volume=1.15"
+            filter_str = "atempo=1.15,asetrate=44100*1.04,aresample=44100,volume=1.15"
 
         cmd = [
             "ffmpeg", "-y", "-i", str(raw_path),
