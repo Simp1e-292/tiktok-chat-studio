@@ -189,59 +189,55 @@ def get_media_duration_us(file_path: str) -> int:
 
 def generate_voiceovers(target_assets_dir: Path):
     """
-    Tạo 8 file lồng tiếng từng nhân vật hoặc trích xuất từ kho lưu trữ có sẵn:
-    - Sếp Tổng: Giọng nam trầm quyền lực phong cách ADAM (bass boost, -7% pitch)
-    - Hải Kỹ Thuật: Giọng nam trẻ trung, hào hứng
-    - Vy Sale: Giọng nữ ngọt ngào, hớn hở (+15% pitch)
-    - Thắng Công Trình: Giọng nam công trình khỏe khoắn
+    Tạo 8 file lồng tiếng từng nhân vật chuẩn tốc độ 1.0x (tự nhiên, rõ chữ):
+    - Sếp Tổng: Nam trầm uy lực phong cách ADAM (vi-VN-NamMinhNeural, 1.0x)
+    - Vy Sale: Nữ tươi vui, ngọt ngào (vi-VN-HoaiMyNeural, 1.0x)
+    - Hải Kỹ Thuật: Nam trẻ trung (vi-VN-NamMinhNeural, 1.0x)
+    - Thắng Công Trình: Nam công trình khỏe khoắn (vi-VN-NamMinhNeural, 1.0x)
     """
-    print("[VoiceEngine] Đang khởi tạo bộ giọng đọc lồng tiếng nhân vật...")
+    print("[VoiceEngine] Đang khởi tạo bộ giọng đọc lồng tiếng chuẩn tốc độ 1.0x...")
     target_assets_dir.mkdir(parents=True, exist_ok=True)
 
-    # Kiểm tra xem có thể trích xuất voice có sẵn từ file zip mẫu
-    sample_zip = ASSETS_DIR / f"{PROJECT_NAME}.zip"
-    if not sample_zip.exists():
-        sample_zip = WORKSPACE.parent / f"{PROJECT_NAME}.zip"
+    import asyncio
+    try:
+        import edge_tts
+        has_edge_tts = True
+    except ImportError:
+        has_edge_tts = False
 
-    all_voices_exist = all((target_assets_dir / f"voice_{item['index']}_{item['role']}.mp3").exists() for item in RAW_DIALOGUE)
-    if not all_voices_exist and sample_zip.exists():
-        print(f"[VoiceEngine] Trích xuất file voice chất lượng cao từ gói: {sample_zip.name}...")
-        with zipfile.ZipFile(sample_zip, 'r') as zf:
-            for member in zf.namelist():
-                if "/assets/voice_" in member or member.startswith("assets/voice_"):
-                    fname = Path(member).name
-                    with open(target_assets_dir / fname, "wb") as f_out:
-                        f_out.write(zf.read(member))
+    async def _render_edge(text: str, voice: str, out_file: Path):
+        c = edge_tts.Communicate(text, voice, rate="+0%")
+        await c.save(str(out_file))
 
     for item in RAW_DIALOGUE:
         voice_filename = f"voice_{item['index']}_{item['role']}.mp3"
         out_path = target_assets_dir / voice_filename
 
-        if not out_path.exists():
-            # Tạo file TTS nếu chưa có
-            raw_path = target_assets_dir / f"raw_{voice_filename}"
-            tts = gTTS(item["text"], lang="vi")
-            tts.save(str(raw_path))
+        # Chọn giọng theo vai
+        if item["role"] == "vy":
+            voice_name = "vi-VN-HoaiMyNeural"
+        else:
+            voice_name = "vi-VN-NamMinhNeural"
 
-            # Thử gọi ffmpeg nếu có, nếu không thì dùng trực tiếp raw
-            filter_str = "atempo=1.15"
+        # Tạo mới giọng đọc ở tốc độ chuẩn 1.0x
+        success = False
+        if has_edge_tts:
             try:
-                cmd = ["ffmpeg", "-y", "-i", str(raw_path), "-af", filter_str, "-b:a", "192k", str(out_path)]
-                subprocess.check_call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                if raw_path.exists():
-                    raw_path.unlink()
-            except Exception:
-                if raw_path.exists():
-                    if out_path.exists():
-                        out_path.unlink()
-                    raw_path.rename(out_path)
+                asyncio.run(_render_edge(item["text"], voice_name, out_path))
+                success = True
+            except Exception as e:
+                print(f" [VoiceEngine Warning] Edge-TTS lỗi ở câu {item['index']}: {e}, chuyển sang gTTS")
+
+        if not success:
+            tts = gTTS(item["text"], lang="vi")
+            tts.save(str(out_path))
 
         dur_us = get_media_duration_us(str(out_path))
         item["voice_file"] = voice_filename
         item["voice_dur_us"] = dur_us
-        print(f" - [Voice {item['index']}] {item['sender']} ({item['role']}): {dur_us/1000000:.2f}s -> {voice_filename}")
+        print(f" - [Voice 1.0x - {item['index']}] {item['sender']} ({item['role']}): {dur_us/1000000:.2f}s -> {voice_filename}")
 
-    print("[VoiceEngine] Đã tổng hợp thành công toàn bộ 8 file lồng tiếng nhân vật!")
+    print("[VoiceEngine] Đã tổng hợp thành công toàn bộ 8 file lồng tiếng chuẩn tốc độ 1.0x!")
 
 
 def ensure_frames_and_assets(target_assets_dir: Path):
@@ -357,19 +353,18 @@ def build_capcut_project(output_root: Path, project_name: str) -> Path:
     ensure_frames_and_assets(proj_assets)
     timeline_steps, total_duration_us = calculate_synced_timeline(proj_assets)
 
-    # Thêm 5 tracks theo đúng thứ tự (z-order)
+    # Thêm 4 tracks theo đúng thứ tự (z-order) - Không chèn Text đè vì frame chat đã có chữ sẵn
     track_bg = script.append_track(TrackSpec(TrackType.video, name="Track_Background"))
     track_phone = script.append_track(TrackSpec(TrackType.video, name="Track_PhoneScreen"))
     track_sfx = script.append_track(TrackSpec(TrackType.audio, name="Track_AudioSFX"))
     track_voice = script.append_track(TrackSpec(TrackType.audio, name="Track_Voiceover"))
-    track_text = script.append_track(TrackSpec(TrackType.text, name="Track_Subtitles"))
 
     # 1. Track 1: Nền Anime Sky (kéo dài suốt video)
     bg_file = str(proj_assets / "bg_anime_sky.jpg")
     bg_seg = VideoSegment(bg_file, trange(0, total_duration_us))
     script.add_segment(bg_seg, track="Track_Background")
 
-    # 2. Track 2: Từng khung tin nhắn chat (Frame 0 -> 8)
+    # 2. Track 2: Từng khung tin nhắn chat (Frame 0 -> 8, giao diện đã chứa sẵn chữ tin nhắn sắc nét)
     for step in timeline_steps:
         f_path = str(proj_assets / step["frame"])
         seg = VideoSegment(f_path, trange(step["start_us"], step["duration_us"]))
@@ -385,7 +380,7 @@ def build_capcut_project(output_root: Path, project_name: str) -> Path:
             sfx_seg = AudioSegment(sfx_mat, trange(step["start_us"], dur), volume=0.85)
             script.add_segment(sfx_seg, track="Track_AudioSFX")
 
-    # 4. Track 4: Giọng Đọc Lồng Tiếng Voiceover Từng Nhân Vật
+    # 4. Track 4: Giọng Đọc Lồng Tiếng Voiceover Từng Nhân Vật Chuẩn Tốc Độ 1.0x
     for step in timeline_steps:
         voice_file = step.get("voice")
         if voice_file:
@@ -394,23 +389,9 @@ def build_capcut_project(output_root: Path, project_name: str) -> Path:
             v_seg = AudioSegment(v_mat, trange(step["start_us"], v_mat.duration), volume=1.3)
             script.add_segment(v_seg, track="Track_Voiceover")
 
-    # 5. Track 5: Phụ đề chạy chữ (Subtitles)
-    for step in timeline_steps:
-        sub_text = step.get("sub")
-        if sub_text:
-            text_style = TextStyle(size=7.5, color=(1.0, 1.0, 1.0), bold=True)
-            text_border = TextBorder(color=(0.0, 0.0, 0.0), width=0.15)
-            t_seg = TextSegment(
-                sub_text,
-                trange(step["start_us"], step["duration_us"]),
-                style=text_style,
-                border=text_border
-            )
-            script.add_segment(t_seg, track="Track_Subtitles")
-
     # Lưu bản nháp ban đầu
     script.save()
-    print("[Generator] pyJianYingDraft đã lưu draft_content.json và draft_meta_info.json!")
+    print("[Generator] pyJianYingDraft đã lưu draft_content.json và draft_meta_info.json (4 tracks sạch sẽ, không text đè)!")
 
     # 6. HẬU KỲ CHUẨN HÓA ĐỘ KHẢ CHUYỂN (PORTABILITY POST-PROCESSING)
     post_process_capcut_draft(proj_dir, project_name, total_duration_us)
