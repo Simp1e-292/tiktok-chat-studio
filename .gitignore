@@ -21,3 +21,10 @@ comedy_30s_work/
 render_30s_frames/
 chotcoc_frames/
 /video_mau_cua_thep_30s.mp4
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+assets/.tts_cache/
+studio_exports/
+*.tmp

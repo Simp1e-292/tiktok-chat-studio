@@ -5,7 +5,7 @@ echo   FIX LOI GOOGLE DRIVE (desktop.ini) & DONG BO CAPCUT / GITHUB
 echo ===================================================================
 cd /d "%~dp0"
 
-echo [1/3] Dang xoa cac file an desktop.ini do Google Drive tao ra...
+echo [1/4] Dang xoa cac file an desktop.ini do Google Drive tao ra...
 for /r %%f in (desktop.ini) do (
     if exist "%%f" (
         attrib -r -h -s "%%f" > nul 2>&1
@@ -21,15 +21,30 @@ if exist ".git" (
     )
 )
 
-echo [2/3] Dang chay capcut_draft_generator.py de dong bo lai CapCut Desktop...
-"%LOCALAPPDATA%\Python\pythoncore-3.14-64\python.exe" capcut_draft_generator.py
-if errorlevel 1 (
-    python capcut_draft_generator.py
+set "PY_CMD="
+if exist ".venv\Scripts\python.exe" set "PY_CMD=.venv\Scripts\python.exe"
+if not defined PY_CMD if exist "%LOCALAPPDATA%\Python\pythoncore-3.14-64\python.exe" set "PY_CMD=%LOCALAPPDATA%\Python\pythoncore-3.14-64\python.exe"
+if not defined PY_CMD where python > nul 2>&1 && set "PY_CMD=python"
+if not defined PY_CMD where py > nul 2>&1 && set "PY_CMD=py -3"
+
+echo [2/4] Kiem tra node_modules va thu vien Python...
+if not exist "node_modules\puppeteer-core" (
+    where npm > nul 2>&1 && call npm install --no-audit --no-fund
+)
+if defined PY_CMD (
+    %PY_CMD% -c "import PIL, pyJianYingDraft, gtts, edge_tts" > nul 2>&1 || %PY_CMD% -m pip install -r requirements.txt
 )
 
-echo [3/3] Kiem tra trang thai Git...
+echo [3/4] Dang chay capcut_draft_generator.py de dong bo lai CapCut Desktop...
+if defined PY_CMD (
+    %PY_CMD% capcut_draft_generator.py
+) else (
+    echo [CANH BAO] Khong tim thay Python de chay capcut_draft_generator.py
+)
+
+echo [4/4] Kiem tra trang thai Git...
 git status -s
 echo ===================================================================
-echo   HOAN TAT! Ban co the mo CapCut Desktop va Export video ngay.
+echo   HOAN TAT! Chay CHAY_STUDIO.bat de mo Web Studio hoac mo CapCut!
 echo ===================================================================
 pause
