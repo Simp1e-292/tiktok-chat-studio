@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="style.css?v=4.0">
     <!-- html-to-image Local — chụp DOM thành ảnh chất lượng cao không phụ thuộc internet -->
     <script src="assets/html-to-image.min.js" defer></script>
+    <!-- SheetJS Local — đọc và xuất file Excel (.xlsx / .csv) không phụ thuộc internet -->
+    <script src="assets/xlsx.mini.min.js" defer></script>
 </head>
 <body class="hide-bottom-bar">
 
@@ -89,6 +91,37 @@
                         <button type="button" class="btn-secondary" onclick="resetDefaultScenarios()" style="flex: 1; padding: 7px 8px; font-size: 11.5px;" title="Khôi phục bộ kịch bản mẫu gốc">
                             🔄 Khôi Phục Gốc
                         </button>
+                    </div>
+
+                    <!-- Toolbar Nhập Excel & Bảng Thoại Siêu Dễ -->
+                    <div class="scenario-toolbar" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 6px; gap: 5px;">
+                        <label class="btn-primary" style="flex: 1.2; padding: 7px 6px; font-size: 11.5px; cursor: pointer; background: linear-gradient(135deg, #059669 0%, #047857 100%); border-color: #059669; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                            <span>📊 Nhập Excel/CSV</span>
+                            <input type="file" id="import-excel-file" accept=".xlsx,.xls,.csv,text/csv" style="display: none;" onchange="importExcelOrCsvFile(this)">
+                        </label>
+                        <button type="button" class="btn-secondary" onclick="downloadSampleExcelTemplate()" style="flex: 1; padding: 7px 6px; font-size: 11px; border-color: rgba(16, 185, 129, 0.4); color: #34d399;" title="Tải file Excel mẫu chuẩn (.xlsx) về máy">
+                            📥 Excel Mẫu
+                        </button>
+                        <button type="button" class="btn-secondary" id="btn-toggle-quick-paste" onclick="toggleQuickPasteBox()" style="flex: 1.1; padding: 7px 6px; font-size: 11px; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;" title="Dán nhanh bảng copy từ Excel hoặc ChatGPT">
+                            📋 Dán Bảng Copy
+                        </button>
+                    </div>
+
+                    <!-- Khung Dán Nhanh Bảng Copy Từ Excel / ChatGPT (Ẩn/Hiện) -->
+                    <div id="quick-paste-box" class="ai-generator-box" style="display: none; background: rgba(15, 23, 42, 0.85); border-color: rgba(56, 189, 248, 0.4); margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 12.5px; font-weight: 700; color: #38bdf8;">📋 Nhập Nhanh Từ Excel / Bảng Thoại AI</span>
+                            <button type="button" onclick="toggleQuickPasteBox()" style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; padding: 2px 6px;">✕</button>
+                        </div>
+                        <p style="font-size: 11px; color: #cbd5e1; margin: 4px 0 6px; line-height: 1.4;">
+                            Chỉ cần <strong>Copy</strong> các ô trong Excel/Google Sheets hoặc bảng thoại từ ChatGPT rồi <strong>Dán</strong> vào đây (hỗ trợ cả dạng <code>Người gửi: Lời thoại</code> hoặc bảng copy nhiều cột):
+                        </p>
+                        <textarea id="quick-paste-textarea" class="input-field" style="height: 110px; font-family: monospace; font-size: 11.5px; line-height: 1.4;" placeholder="Ví dụ copy từ Excel hoặc gõ:&#10;Hải (CSKH): Toang rồi! Khách gọi cửa khắc Tùng Trang...&#10;Trưởng (TK): Bản vẽ của ai khai mau!&#10;Tùng em: Em vẽ tặng sinh nhật gửi nhầm ạ..."></textarea>
+                        <div style="display: flex; gap: 8px; margin-top: 6px;">
+                            <button type="button" class="btn-primary" onclick="applyQuickPasteText()" style="flex: 1; padding: 8px; font-size: 12px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); font-weight: 600;">
+                                ⚡ Chuyển Thành Kịch Bản Video Ngay
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Khung Tạo Kịch Bản Tự Động Bằng Gemini AI (Ẩn/Hiện) -->
@@ -617,36 +650,34 @@ INBOX NGAY ĐỂ ỨNG TUYỂN!</textarea>
                         🎬 Xuất Video MP4 Trực Tiếp (1080×1920)
                     </button>
 
+                    <a href="assets/video_mau_cua_thep_30s.mp4" download="Cua_Thep_TikTok_Luxury_1080x1920.mp4" class="btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11.5px; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">
+                        <span>📱 Tải Nhanh MP4 Vào Điện Thoại (Mở CapCut Mobile)</span>
+                    </a>
+
                     <!-- Hướng dẫn 3 bước cực nhanh -->
                     <div class="capcut-guide-box">
                         <div style="font-weight: 700; color: #38bdf8; margin-bottom: 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
-                            🚀 Hướng dẫn mở trên CapCut PC trong 10 giây:
+                            🚀 Hướng dẫn mở trên CapCut PC &amp; Điện thoại:
                         </div>
 
-                        <div class="capcut-guide-step">
-                            <span class="step-num">1</span>
-                            <div>Tải file <code>.ZIP</code> ở trên và giải nén ra máy tính.</div>
-                        </div>
-
-                        <div class="capcut-guide-step">
-                            <span class="step-num">2</span>
+                        <div class="capcut-guide-step" style="background: rgba(16, 185, 129, 0.1); border-radius: 6px; padding: 6px 8px;">
+                            <span class="step-num" style="background: #10b981;">📱</span>
                             <div style="width: 100%;">
-                                Nhấp đúp chạy <strong><code>CAI_DAT_VAO_CAPCUT.bat</code></strong> (Windows) hoặc <strong><code>CAI_DAT_VAO_CAPCUT.command</code></strong> (Mac) ngay bên trong thư mục vừa giải nén — dự án sẽ tự cài chuẩn đường dẫn!
-                                <div style="font-size: 10px; color: #94a3b8; margin-top: 4px;">Hoặc mở thư mục Draft thủ công:</div>
-                                <div class="path-code-box">
-                                    <span>%LOCALAPPDATA%\CapCut\User Data\Projects\com.lveditor.draft\</span>
-                                    <button type="button" class="btn-copy-mini" id="btn-copy-win" onclick="copyCapCutPath('%LOCALAPPDATA%\\CapCut\\User Data\\Projects\\com.lveditor.draft\\', 'btn-copy-win')">📋 Chép</button>
-                                </div>
-                                <div class="path-code-box" style="margin-top: 4px;">
-                                    <span>~/Movies/CapCut/User Data/Projects/com.lveditor.draft/</span>
-                                    <button type="button" class="btn-copy-mini" id="btn-copy-mac" onclick="copyCapCutPath('~/Movies/CapCut/User Data/Projects/com.lveditor.draft/', 'btn-copy-mac')">📋 Chép</button>
+                                <strong style="color: #34d399;">Trên Điện Thoại (iOS / Android):</strong>
+                                <div style="font-size: 11px; color: #cbd5e1; margin-top: 2px; line-height: 1.4;">
+                                    Bấm nút <strong>"📱 Tải Nhanh MP4"</strong> ở trên &rarr; Video lưu thẳng vào Album Ảnh &rarr; Mở app CapCut &rarr; Chọn <strong>Dự án mới</strong> &rarr; Chọn video. Bấm <em>"Văn bản" &rarr; "Phụ đề tự động"</em> để CapCut tự động tạo chữ nhảy karaoke theo giọng đọc!
                                 </div>
                             </div>
                         </div>
 
-                        <div class="capcut-guide-step">
-                            <span class="step-num">3</span>
-                            <div>Mở CapCut Desktop -&gt; Chọn dự án -&gt; Nhấn <strong>Export (Ctrl+E)</strong> là xong!</div>
+                        <div class="capcut-guide-step" style="margin-top: 6px;">
+                            <span class="step-num">💻</span>
+                            <div style="width: 100%;">
+                                <strong style="color: #93c5fd;">Trên Máy Tính (CapCut PC):</strong>
+                                <div style="font-size: 11px; color: #cbd5e1; margin-top: 2px;">
+                                    Tải file <code>.ZIP</code> ở trên &rarr; Chạy <strong><code>CAI_DAT_VAO_CAPCUT.bat</code></strong> (Windows) hoặc <strong><code>.command</code></strong> (Mac) để tự cài dự án 4 tracks nguyên gốc vào CapCut PC!
+                                </div>
+                            </div>
                         </div>
                     </div>
 
