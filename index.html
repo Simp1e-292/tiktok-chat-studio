@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="style.css?v=4.0">
     <!-- html-to-image Local — chụp DOM thành ảnh chất lượng cao không phụ thuộc internet -->
     <script src="assets/html-to-image.min.js" defer></script>
+    <!-- SheetJS Local — đọc và xuất file Excel (.xlsx / .csv) không phụ thuộc internet -->
+    <script src="assets/xlsx.mini.min.js" defer></script>
 </head>
 <body class="hide-bottom-bar">
 
@@ -89,6 +91,37 @@
                         <button type="button" class="btn-secondary" onclick="resetDefaultScenarios()" style="flex: 1; padding: 7px 8px; font-size: 11.5px;" title="Khôi phục bộ kịch bản mẫu gốc">
                             🔄 Khôi Phục Gốc
                         </button>
+                    </div>
+
+                    <!-- Toolbar Nhập Excel & Bảng Thoại Siêu Dễ -->
+                    <div class="scenario-toolbar" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 6px; gap: 5px;">
+                        <label class="btn-primary" style="flex: 1.2; padding: 7px 6px; font-size: 11.5px; cursor: pointer; background: linear-gradient(135deg, #059669 0%, #047857 100%); border-color: #059669; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                            <span>📊 Nhập Excel/CSV</span>
+                            <input type="file" id="import-excel-file" accept=".xlsx,.xls,.csv,text/csv" style="display: none;" onchange="importExcelOrCsvFile(this)">
+                        </label>
+                        <button type="button" class="btn-secondary" onclick="downloadSampleExcelTemplate()" style="flex: 1; padding: 7px 6px; font-size: 11px; border-color: rgba(16, 185, 129, 0.4); color: #34d399;" title="Tải file Excel mẫu chuẩn (.xlsx) về máy">
+                            📥 Excel Mẫu
+                        </button>
+                        <button type="button" class="btn-secondary" id="btn-toggle-quick-paste" onclick="toggleQuickPasteBox()" style="flex: 1.1; padding: 7px 6px; font-size: 11px; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;" title="Dán nhanh bảng copy từ Excel hoặc ChatGPT">
+                            📋 Dán Bảng Copy
+                        </button>
+                    </div>
+
+                    <!-- Khung Dán Nhanh Bảng Copy Từ Excel / ChatGPT (Ẩn/Hiện) -->
+                    <div id="quick-paste-box" class="ai-generator-box" style="display: none; background: rgba(15, 23, 42, 0.85); border-color: rgba(56, 189, 248, 0.4); margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 12.5px; font-weight: 700; color: #38bdf8;">📋 Nhập Nhanh Từ Excel / Bảng Thoại AI</span>
+                            <button type="button" onclick="toggleQuickPasteBox()" style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; padding: 2px 6px;">✕</button>
+                        </div>
+                        <p style="font-size: 11px; color: #cbd5e1; margin: 4px 0 6px; line-height: 1.4;">
+                            Chỉ cần <strong>Copy</strong> các ô trong Excel/Google Sheets hoặc bảng thoại từ ChatGPT rồi <strong>Dán</strong> vào đây (hỗ trợ cả dạng <code>Người gửi: Lời thoại</code> hoặc bảng copy nhiều cột):
+                        </p>
+                        <textarea id="quick-paste-textarea" class="input-field" style="height: 110px; font-family: monospace; font-size: 11.5px; line-height: 1.4;" placeholder="Ví dụ copy từ Excel hoặc gõ:&#10;Hải (CSKH): Toang rồi! Khách gọi cửa khắc Tùng Trang...&#10;Trưởng (TK): Bản vẽ của ai khai mau!&#10;Tùng em: Em vẽ tặng sinh nhật gửi nhầm ạ..."></textarea>
+                        <div style="display: flex; gap: 8px; margin-top: 6px;">
+                            <button type="button" class="btn-primary" onclick="applyQuickPasteText()" style="flex: 1; padding: 8px; font-size: 12px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); font-weight: 600;">
+                                ⚡ Chuyển Thành Kịch Bản Video Ngay
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Khung Tạo Kịch Bản Tự Động Bằng Gemini AI (Ẩn/Hiện) -->

@@ -998,6 +998,255 @@ function importScenarioJsonFile(input) {
     reader.readAsText(file, 'utf-8');
 }
 
+// ---- NHẬP TỪ EXCEL (.XLSX / .CSV) & BẢNG COPY CHATGPT ----
+function parseRawTableText(rawText) {
+    const rawLines = String(rawText || '').trim().split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const rows = [];
+    for (const line of rawLines) {
+        if (/^[|\-:\s]+$/.test(line)) continue; // Bỏ qua dòng kẻ bảng markdown |---|---|
+        if (line.includes('\t')) {
+            rows.push(line.split('\t').map(c => c.trim()));
+        } else if (line.startsWith('|') && line.endsWith('|')) {
+            const cells = line.slice(1, -1).split('|').map(c => c.trim());
+            rows.push(cells);
+        } else if (line.includes(',') && !line.includes(': ')) {
+            rows.push(line.split(',').map(c => c.trim()));
+        } else {
+            const colonIdx = line.indexOf(':');
+            if (colonIdx > 0 && colonIdx < 35) {
+                const sender = line.slice(0, colonIdx).trim();
+                const content = line.slice(colonIdx + 1).trim();
+                rows.push([sender, content]);
+            } else {
+                rows.push([line]);
+            }
+        }
+    }
+    return rows;
+}
+
+function parseTableRowsToScenario(rows, defaultTitle = 'Kịch Bản Nhập Từ Bảng') {
+    const messages = [];
+    const uniqueSenders = new Map();
+
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || row.length === 0) continue;
+        const filtered = row.map(c => String(c || '').trim()).filter(Boolean);
+        if (filtered.length < 2) continue;
+
+        const joined = filtered.join(' ').toLowerCase();
+        if (i === 0 && (joined.includes('người gửi') || joined.includes('tin nhắn') || joined.includes('lời thoại') || joined.includes('sender') || joined.includes('stt') || joined.includes('#'))) {
+            continue; // Bỏ qua dòng tiêu đề cột
+        }
+
+        let sender = '';
+        let content = '';
+
+        if (filtered.length >= 3 && (/^\d+$/.test(filtered[0]) || filtered[0].length <= 3)) {
+            // Định dạng: [STT, Người gửi, Tin nhắn]
+            sender = filtered[1];
+            content = filtered.slice(2).join(' ');
+        } else {
+            // Định dạng: [Người gửi, Tin nhắn]
+            sender = filtered[0];
+            content = filtered.slice(1).join(' ');
+        }
+
+        if (!sender || !content) continue;
+
+        let charId = '';
+        let charRole = 'customer';
+        let matched = characterRoster.find(c => c.name.toLowerCase() === sender.toLowerCase() || c.name.toLowerCase().includes(sender.toLowerCase()) || sender.toLowerCase().includes(c.name.toLowerCase()));
+
+        if (matched) {
+            charId = matched.id;
+            charRole = matched.role || 'customer';
+        } else {
+            const isOwner = /sếp|chủ|cô ba|quản lý|owner|kt|kế toán|admin/i.test(sender);
+            charRole = isOwner ? 'owner' : 'customer';
+            charId = 'char_tbl_' + Math.abs(sender.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)).toString(36).slice(0, 7);
+
+            if (!uniqueSenders.has(sender)) {
+                const female = /vy|trang|nga|châm|kim|nữ|cô|chị/i.test(sender);
+                const newChar = {
+                    id: charId,
+                    name: sender,
+                    avatar: female ? (charRole === 'owner' ? 'assets/avatar_vy.png' : 'assets/owner_avatar.png') : (charRole === 'owner' ? 'assets/avatar_sep.png' : 'assets/avatar_hai.png'),
+                    role: charRole,
+                    voice: female ? 'vi-VN-HoaiMyNeural' : 'vi-VN-NamMinhNeural',
+                    rate: '+0%',
+                    pitch: '+0Hz'
+                };
+                characterRoster.push(newChar);
+                saveCharactersToStorage();
+                renderCharacterRoster();
+            }
+        }
+
+        uniqueSenders.set(sender, charId);
+        const delay = Math.max(1200, Math.min(2500, 1100 + content.length * 16));
+
+        messages.push({
+            id: 'm_' + (messages.length + 1),
+            senderId: charId,
+            senderName: sender,
+            sender: charRole,
+            type: 'text',
+            content: content,
+            delay: Math.round(delay),
+            sfx: charRole === 'owner' ? 'pop' : 'ting'
+        });
+    }
+
+    if (messages.length === 0) {
+        throw new Error('Không đọc được dòng tin nhắn nào hợp lệ. Hãy kiểm tra lại cột Người gửi & Tin nhắn!');
+    }
+
+    const isGroup = uniqueSenders.size > 2;
+    const autoTitle = defaultTitle && !defaultTitle.includes('Kịch Bản Nhập')
+        ? defaultTitle
+        : (isGroup ? `🏢 [GROUP CHAT] Hội Thoại ${uniqueSenders.size} Người (${messages.length} câu)` : `💬 [CHAT 1-1] Tư Vấn & Chốt Đơn (${messages.length} câu)`);
+
+    return {
+        title: autoTitle,
+        desc: `Kịch bản tự động nhập từ bảng tính (${uniqueSenders.size} nhân vật tham gia, ${messages.length} câu thoại).`,
+        theme: isGroup ? 'group_messenger' : 'messenger_ios',
+        groupName: isGroup ? 'Văn Phòng Cửa Thép Luxury' : undefined,
+        groupUnread: messages.length,
+        groupAvatar: 'assets/steel_door_logo.png',
+        bgWallpaper: 'assets/bg_anime_sky.jpg',
+        bubbleColor: '#e0f2fe',
+        messages: messages
+    };
+}
+
+function importExcelOrCsvFile(input) {
+    const file = input?.files?.[0];
+    if (!file) return;
+
+    const fileName = file.name || 'Bang_Thoai';
+    const isXlsx = /\.(xlsx|xls)$/i.test(fileName);
+
+    const finishImport = (scenario) => {
+        const newKey = 'scenario_table_' + Date.now();
+        scenarios[newKey] = scenario;
+        saveScenariosToStorage();
+        openScenarioFromCard(newKey);
+        renderScenarioCards();
+        showToast(`📊 Đã nhập thành công ${scenario.messages.length} câu thoại từ: "${fileName}"!`, 'success', 5000);
+        input.value = '';
+    };
+
+    if (isXlsx && typeof XLSX !== 'undefined') {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                const scenario = parseTableRowsToScenario(rawRows, fileName.replace(/\.[^/.]+$/, ''));
+                finishImport(scenario);
+            } catch (err) {
+                showToast('⚠️ Lỗi đọc file Excel: ' + err.message, 'error', 5000);
+                input.value = '';
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    } else {
+        // Đọc text dạng CSV hoặc Tab-separated
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                const rows = parseRawTableText(e.target.result);
+                const scenario = parseTableRowsToScenario(rows, fileName.replace(/\.[^/.]+$/, ''));
+                finishImport(scenario);
+            } catch (err) {
+                showToast('⚠️ Lỗi đọc file CSV: ' + err.message, 'error', 5000);
+                input.value = '';
+            }
+        };
+        reader.readAsText(file, 'utf-8');
+    }
+}
+
+function toggleQuickPasteBox() {
+    const box = document.getElementById('quick-paste-box');
+    if (!box) return;
+    const isHidden = box.style.display === 'none' || !box.style.display;
+    box.style.display = isHidden ? 'block' : 'none';
+    if (isHidden) {
+        const textarea = document.getElementById('quick-paste-textarea');
+        if (textarea) textarea.focus();
+    }
+}
+
+function applyQuickPasteText() {
+    const textarea = document.getElementById('quick-paste-textarea');
+    const raw = textarea?.value?.trim();
+    if (!raw) {
+        showToast('⚠️ Vui lòng dán bảng thoại hoặc các dòng Người gửi: Lời thoại vào ô trước!', 'warn');
+        return;
+    }
+
+    try {
+        const rows = parseRawTableText(raw);
+        const scenario = parseTableRowsToScenario(rows, '📋 Kịch Bản Dán Nhanh ' + new Date().toLocaleTimeString('vi-VN'));
+        const newKey = 'scenario_table_' + Date.now();
+        scenarios[newKey] = scenario;
+        saveScenariosToStorage();
+        openScenarioFromCard(newKey);
+        renderScenarioCards();
+        toggleQuickPasteBox();
+        if (textarea) textarea.value = '';
+        showToast(`🎉 Đã nạp thành công ${scenario.messages.length} câu thoại từ bảng copy!`, 'success', 5000);
+    } catch (err) {
+        showToast('⚠️ ' + err.message, 'error', 5000);
+    }
+}
+
+function downloadSampleExcelTemplate() {
+    if (typeof XLSX !== 'undefined') {
+        try {
+            const sampleData = [
+                ['#', 'Người gửi', 'Tin nhắn'],
+                ['1', 'Hải (CSKH)', 'Toang rồi! Khách Ecopark gọi, cửa vừa lắp có khắc chữ TÙNG ❤️ TRANG to đùng!'],
+                ['2', 'Trưởng (TK)', 'Bản vẽ của ai? Tùng anh hay Tùng em, khai mau!'],
+                ['3', 'Tùng anh', 'Em có vợ con rồi nhé, đừng ai nhìn em! 🙏'],
+                ['4', 'Tùng em', 'Dạ... em vẽ làm quà sinh nhật, lỡ gửi nhầm file xuống xưởng ạ 😭'],
+                ['5', 'Trang (CSKH)', 'Khoan... Trang nào? Trang chăm sóc khách hàng này á?! 😳'],
+                ['6', 'Nga (TK)', 'Cả phòng thiết kế biết từ năm ngoái rồi, mỗi chị Trang không biết 😀'],
+                ['7', 'Thanh Hải (KT)', 'Cánh cửa 18 triệu. Chị trừ dần vào lương Tùng em nhé!'],
+                ['8', 'Châm (MH)', 'Mua hàng báo: phôi cánh đó hết rồi, đặt lại mất 2 tuần!'],
+                ['9', 'Hải (CSKH)', 'KHOAN!!! Khách gọi lại! Chồng chị ấy tên Tùng, chị tên Trang, đúng kỷ niệm 10 năm cưới, chị khóc luôn!'],
+                ['10', 'Hải (CSKH)', 'Chốt thêm 2 bộ cho nhà nội nhà ngoại, khắc y chang!'],
+                ['11', 'Thanh Hải (KT)', '...Thôi, không trừ lương nữa. Thưởng nóng!'],
+                ['12', 'Trang (CSKH)', 'Thế... quà sinh nhật của em đâu? 🙈'],
+                ['13', 'Kim (NS)', 'Thứ Bảy em mang cà phê Buôn Ma Thuột lên, mừng cặp đôi đầu tiên của công ty! ☕ ❤️']
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(sampleData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Kịch Bản TikTok');
+            XLSX.writeFile(wb, 'Mau_Kich_Ban_TikTok_CuaThep.xlsx');
+            showToast('📥 Đang tải file Excel mẫu: Mau_Kich_Ban_TikTok_CuaThep.xlsx', 'success');
+            return;
+        } catch (e) {
+            console.warn('XLSX export fallback to CSV:', e);
+        }
+    }
+
+    // Fallback nếu chưa tải thư viện XLSX
+    const a = document.createElement('a');
+    a.href = 'assets/Mau_Kich_Ban_TikTok_CuaThep.xlsx';
+    a.download = 'Mau_Kich_Ban_TikTok_CuaThep.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast('📥 Đã tải file Excel mẫu về máy!', 'success');
+}
+
 function toggleAiBox() {
     const box = document.getElementById('ai-generator-box');
     if (!box) return;
