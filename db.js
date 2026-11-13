@@ -136,15 +136,23 @@ function dbClear(storeName) {
 // ============================================================================
 
 /**
- * Lưu toàn bộ roster nhân vật vào IndexedDB
+ * Lưu toàn bộ roster nhân vật vào IndexedDB (1 transaction duy nhất — atomic)
  * @param {Array} roster - Mảng nhân vật
  */
-async function saveCharactersToIndexedDB(roster) {
-    // Xóa hết rồi ghi mới (đảm bảo đồng bộ với mảng in-memory)
-    await dbClear(STORE_CHARACTERS);
-    for (const char of roster) {
-        await dbPut(STORE_CHARACTERS, char);
-    }
+function saveCharactersToIndexedDB(roster) {
+    return openDB().then(db => {
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_CHARACTERS, 'readwrite');
+            const store = tx.objectStore(STORE_CHARACTERS);
+            store.clear();
+            for (const char of roster) {
+                store.put(char);
+            }
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+            tx.onabort = () => reject(tx.error);
+        });
+    });
 }
 
 /**
@@ -204,6 +212,27 @@ async function saveScenarioToIndexedDB(key, scenarioData) {
 }
 
 /**
+ * Lưu toàn bộ danh sách kịch bản vào IndexedDB (atomic)
+ */
+function saveAllScenariosToIndexedDB(scenariosObj) {
+    return openDB().then(db => {
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_SCENARIOS, 'readwrite');
+            const store = tx.objectStore(STORE_SCENARIOS);
+            store.clear();
+            for (const [key, data] of Object.entries(scenariosObj)) {
+                if (data && typeof data === 'object') {
+                    store.put({ key, ...data });
+                }
+            }
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+            tx.onabort = () => reject(tx.error);
+        });
+    });
+}
+
+/**
  * Nạp tất cả kịch bản từ IndexedDB
  */
 async function loadScenariosFromIndexedDB() {
@@ -215,6 +244,20 @@ async function loadScenariosFromIndexedDB() {
         result[key] = data;
     }
     return result;
+}
+
+/**
+ * Xóa một kịch bản theo key
+ */
+async function deleteScenarioFromIndexedDB(key) {
+    await dbDelete(STORE_SCENARIOS, key);
+}
+
+/**
+ * Xóa toàn bộ kịch bản đã lưu
+ */
+async function clearScenariosFromIndexedDB() {
+    await dbClear(STORE_SCENARIOS);
 }
 
 // ============================================================================
@@ -229,3 +272,4 @@ async function loadSetting(key) {
     const item = await dbGet(STORE_SETTINGS, key);
     return item ? item.value : null;
 }
+

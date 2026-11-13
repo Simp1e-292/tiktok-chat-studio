@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚡ TikTok Chat Studio — Chuẩn Video Quay Màn Hình & FB Messenger</title>
-    <link rel="stylesheet" href="style.css?v=3.0">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='16' fill='%230f172a'/><text x='32' y='44' font-size='36' text-anchor='middle'>⚡</text></svg>">
+    <link rel="stylesheet" href="style.css?v=4.0">
     <!-- html-to-image Local — chụp DOM thành ảnh chất lượng cao không phụ thuộc internet -->
     <script src="assets/html-to-image.min.js" defer></script>
 </head>
-<body>
+<body class="hide-bottom-bar">
 
     <!-- Thanh Tiêu đề Studio Pro -->
     <header class="studio-navbar">
@@ -17,7 +18,7 @@
             <span class="brand-badge">VISUAL BUILDER PRO</span>
         </div>
         <div class="studio-status">
-            <span>Mô hình: <strong>Công Ty Cửa Thép Luxury</strong></span>
+            <span id="server-status-badge" class="server-pill offline" title="Mở bằng CHAY_STUDIO.bat / studio_server.py để bật xuất CapCut/MP4 tự động và Edge-TTS">🌐 Chế Độ Web Tĩnh</span>
             <div class="status-indicator">
                 <div class="status-dot"></div>
                 <span>Tỉ Lệ 19.5:9 Chuẩn TikTok</span>
@@ -68,43 +69,59 @@
 
                 <!-- CHẾ ĐỘ XEM 1: DANH SÁCH KỊCH BẢN (SCENARIOS) -->
                 <div id="view-cards" class="scenario-selector">
-                    <button class="btn-primary" onclick="createNewCustomScenario()" style="width: 100%; margin-bottom: 6px;">
-                        ➕ Tạo Kịch Bản Trắc Nghiệm / Hội Thoại Mới
-                    </button>
-
-                    <div class="scenario-card" id="card-scenario_group_cuathep" onclick="switchStudioMode('group'); selectScenario('scenario_group_cuathep'); switchTab('builder');" style="border-left: 3px solid #38bdf8;">
-                        <h4>🏢 [HOT CỬA THÉP] Nghiệm Thu Biệt Thự & Test Búa Tạ</h4>
-                        <p>Drama văn phòng công ty Cửa Thép: Giục nghiệm thu biệt thự, thợ dùng búa tạ test cửa không móp, khách duyệt nổ cọc khủng.</p>
-                        <div class="scenario-meta">
-                            <span class="meta-tag" style="background: rgba(56,189,248,0.15); color: #38bdf8;">⭐ Chuẩn Video Mẫu</span>
-                            <span class="meta-tag">⚡ 8 Tin nhắn</span>
-                            <span class="meta-tag">🚪 Cửa Thép VIP</span>
-                            <span class="meta-tag">☁️ Nền Anime</span>
-                        </div>
+                    <div class="scenario-toolbar">
+                        <button type="button" class="btn-primary" onclick="createNewCustomScenario()" style="flex: 1.5; min-width: 140px; padding: 9px 10px; font-size: 12.5px;">
+                            ➕ Tạo Kịch Bản Mới
+                        </button>
+                        <button type="button" class="btn-secondary" id="btn-toggle-ai" onclick="toggleAiBox()" style="flex: 1; padding: 9px 10px; font-size: 12.5px; border-color: rgba(129, 140, 248, 0.45); color: #a5b4fc;">
+                            🤖 Tạo Bằng AI
+                        </button>
                     </div>
 
-                    <div class="scenario-card active" id="card-scenario_1" onclick="selectScenario('scenario_1'); switchTab('builder');">
-                        <h4>🔥 Tư vấn Vitamin C cho Khách Thức Đêm</h4>
-                        <p>Anh sinh viên chạy deadline xin thuốc siêu nhân & sự tư vấn cực mượt kèm giỏ hàng Vitamin C Kháng Mỏi + Sticker Like.</p>
-                        <div class="scenario-meta">
-                            <span class="meta-tag">⚡ 6 Tin nhắn</span>
-                            <span class="meta-tag">📦 Có Product Card</span>
-                            <span class="meta-tag">👍 Sticker Like Bự</span>
-                        </div>
+                    <div class="scenario-toolbar">
+                        <label class="btn-secondary" style="flex: 1; padding: 7px 8px; font-size: 11.5px; cursor: pointer;">
+                            📥 Nhập JSON
+                            <input type="file" id="import-scenario-file" accept=".json,application/json" style="display: none;" onchange="importScenarioJsonFile(this)">
+                        </label>
+                        <button type="button" class="btn-secondary" onclick="exportScenarioJsonFile()" style="flex: 1; padding: 7px 8px; font-size: 11.5px;">
+                            📤 Xuất JSON
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="resetDefaultScenarios()" style="flex: 1; padding: 7px 8px; font-size: 11.5px;" title="Khôi phục bộ kịch bản mẫu gốc">
+                            🔄 Khôi Phục Gốc
+                        </button>
                     </div>
 
-                    <div class="scenario-card" id="card-scenario_2" onclick="selectScenario('scenario_2'); switchTab('builder');">
-                        <h4>🍻 Giải Nhanh Nóng Gan Cho Anh Nhậu 3 Ngày</h4>
-                        <p>Khách quen than thở sau những bữa tiệc rực lửa và pha chốt đơn Trà Thảo Mộc mát rượi kèm thả Like.</p>
-                        <div class="scenario-meta">
-                            <span class="meta-tag">⚡ 5 Tin nhắn</span>
-                            <span class="meta-tag">🍵 Có Product Card</span>
-                            <span class="meta-tag">👍 Sticker Like Bự</span>
+                    <!-- Khung Tạo Kịch Bản Tự Động Bằng Gemini AI (Ẩn/Hiện) -->
+                    <div id="ai-generator-box" class="ai-generator-box" style="display: none;">
+                        <div style="font-size: 12.5px; font-weight: 700; color: #c7d2fe;">✨ AI Viết Kịch Bản Viral (Gemini)</div>
+                        <div class="form-group">
+                            <label class="form-label">Chủ đề / Sản phẩm cần bán:</label>
+                            <input type="text" id="ai-topic-input" class="input-field" placeholder="Ví dụ: Cửa thép vân gỗ chống trộm, Vitamin C trắng da...">
                         </div>
+                        <div class="form-group">
+                            <label class="form-label">Kiểu hội thoại:</label>
+                            <select id="ai-mode-select" class="select-field">
+                                <option value="group">🏢 Group Chat Nhiều Người</option>
+                                <option value="chat">💬 Chat 1-1 + Thẻ Sản Phẩm</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gemini API Key:</label>
+                            <input type="password" id="ai-api-key" class="input-field" placeholder="AIzaSy... (miễn phí tại aistudio.google.com)">
+                        </div>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #cbd5e1; cursor: pointer;">
+                            <input type="checkbox" id="ai-save-key" checked>
+                            <span>Lưu API Key vào trình duyệt (IndexedDB)</span>
+                        </label>
+                        <button type="button" id="btn-run-ai" class="btn-primary" onclick="generateWithAI()" style="padding: 9px; font-size: 13px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+                            ✨ Tạo Kịch Bản Ngay
+                        </button>
                     </div>
 
-                    <div style="margin-top: 6px; padding: 12px; background: rgba(0, 132, 255, 0.08); border-radius: 12px; border: 1px dashed rgba(0, 132, 255, 0.3); font-size: 12.5px; color: #94a3b8; line-height: 1.5;">
-                        💡 <strong>Mẹo chuyên nghiệp:</strong> Mọi nhân vật đều có thể <strong>Sửa ✏️</strong> hoặc <strong>Xóa 🗑️</strong> tùy ý tại tab <strong>"👤 Nhân vật"</strong>. Bạn có thể thay tên Shop và tải avatar của chính mình lên!
+                    <div id="scenario-list-container" class="scenario-selector"></div>
+
+                    <div style="margin-top: 4px; padding: 12px; background: rgba(0, 132, 255, 0.08); border-radius: 12px; border: 1px dashed rgba(0, 132, 255, 0.3); font-size: 12px; color: #94a3b8; line-height: 1.5;">
+                        💡 <strong>Mẹo chuyên nghiệp:</strong> Mọi nhân vật và kịch bản đều có thể <strong>Sửa ✏️</strong>, <strong>Xóa 🗑️</strong> hoặc <strong>Xuất CapCut / MP4</strong> tùy ý theo nội dung bạn tự soạn!
                     </div>
                 </div>
 
@@ -119,7 +136,7 @@
 
                     <!-- Form Tạo Mới / Chỉnh Sửa Nhân Vật -->
                     <div class="form-card" id="char-form-card">
-                        <div class="form-title" id="char-form-title">➕ Thêm Nhân Vật Mới Vao Studio</div>
+                        <div class="form-title" id="char-form-title">➕ Thêm Nhân Vật Mới Vào Studio</div>
                         
                         <div class="form-group">
                             <label class="form-label">Tên nhân vật / tên Shop:</label>
@@ -130,18 +147,44 @@
                             <label class="form-label">Vai trò trong đoạn Chat:</label>
                             <select id="char-input-role" class="select-field">
                                 <option value="customer">💬 Khách Hàng (Bong bóng Xám bên trái)</option>
-                                <option value="owner">👑 Chủ Tiệm / Shop (Bong bóng Xanh bên phải & trên Header)</option>
+                                <option value="owner">👑 Chủ Tiệm / Shop (Bong bóng Xanh bên phải &amp; trên Header)</option>
                             </select>
                         </div>
 
+                        <div style="display: flex; gap: 8px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label class="form-label">Giọng đọc AI (Edge-TTS):</label>
+                                <select id="char-input-voice" class="select-field">
+                                    <option value="vi-VN-NamMinhNeural">👨 Nam Minh (Nam Trầm)</option>
+                                    <option value="vi-VN-HoaiMyNeural">👩 Hoài My (Nữ Tự Nhiên)</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label class="form-label">Tone giọng (Web Pitch):</label>
+                                <select id="char-input-pitch" class="select-field">
+                                    <option value="1.2">Tươi vui (1.2x)</option>
+                                    <option value="0.95">Trầm ấm (0.95x)</option>
+                                    <option value="1.1">Chuẩn (1.1x)</option>
+                                    <option value="1.35">Nhanh hài (1.35x)</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <div class="form-group">
-                            <label class="form-label">Tone giọng đọc lồng tiếng (TTS Pitch):</label>
-                            <select id="char-input-pitch" class="select-field">
-                                <option value="1.2">Tươi vui / Khách trẻ (Pitch 1.2x)</option>
-                                <option value="0.95">Trầm ấm / Uy tín / Chủ Tiệm (Pitch 0.95x)</option>
-                                <option value="1.1">Giọng chuẩn thông thường (Pitch 1.1x)</option>
-                                <option value="1.35">Giọng cao / Nhanh nhảu hài hước (Pitch 1.35x)</option>
-                            </select>
+                            <label class="form-label">Giọng Thu Âm Riêng (Tuỳ chọn MP3/WAV):</label>
+                            <div class="voice-upload-box">
+                                <label class="file-upload-btn" style="padding: 6px 10px; cursor: pointer; font-size: 12px;">
+                                    <span>🎙️ Tải File Giọng Riêng...</span>
+                                    <input type="file" id="char-input-voice-file" accept="audio/*" style="display: none;">
+                                </label>
+                                <div class="voice-status-row">
+                                    <span id="char-voice-status">🤖 Đang dùng giọng AI tự động</span>
+                                    <div style="display: flex; gap: 4px;">
+                                        <button type="button" class="btn-mini" onclick="previewCharacterVoice()" title="Nghe thử giọng nhân vật">🔊 Nghe thử</button>
+                                        <button type="button" class="btn-mini delete" id="btn-clear-char-voice" onclick="clearCharacterCustomVoice()" style="display: none;" title="Xóa file thu âm riêng">🗑️ Xóa giọng</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -155,12 +198,12 @@
                                     <input type="file" id="char-input-avatar-file" accept="image/*" style="display: none;">
                                 </label>
                             </div>
-                            <span style="font-size: 11px; color: #64748b; margin-top: 2px;">* Ảnh sẽ tự động được nén tối ưu (siêu nhẹ) và lưu vào bộ nhớ trình duyệt!</span>
+                            <span style="font-size: 11px; color: #64748b; margin-top: 2px;">* Ảnh sẽ tự động được nén tối ưu (siêu nhẹ) và lưu vào bộ nhớ IndexedDB!</span>
                         </div>
 
                         <div style="display: flex; gap: 8px; margin-top: 4px;">
                             <button type="button" class="btn-primary" id="btn-save-char" onclick="saveOrUpdateCharacter()" style="flex: 1; cursor: pointer;">
-                                💾 Lưu & Thêm Vào Dàn Nhân Vật
+                                💾 Lưu &amp; Thêm Vào Dàn Nhân Vật
                             </button>
                             <button type="button" class="btn-secondary" id="btn-cancel-edit-char" onclick="cancelEditCharacter()" style="display: none; width: 110px; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); cursor: pointer;">
                                 ❌ Hủy Sửa
@@ -515,11 +558,11 @@ INBOX NGAY ĐỂ ỨNG TUYỂN!</textarea>
 
                 <div class="control-group">
                     <div class="control-title">
-                        <span>🔊 Tầng Xử Lý Âm Thanh (TTS & SFX)</span>
+                        <span>🔊 Âm Thanh &amp; Giao Diện Màn Hình</span>
                     </div>
                     
                     <div class="setting-row">
-                        <span>🎙 Lồng Tiếng Tự Động (Web Speech TTS)</span>
+                        <span>🎙 Lồng Tiếng Tự Động (Edge-TTS / Web)</span>
                         <label class="switch">
                             <input type="checkbox" id="toggle-tts" checked>
                             <span class="slider"></span>
@@ -527,32 +570,52 @@ INBOX NGAY ĐỂ ỨNG TUYỂN!</textarea>
                     </div>
 
                     <div class="setting-row">
-                        <span>🔔 Âm Thanh Hiệu Ứng (Ting & Pop SFX)</span>
+                        <span>🔔 Âm Thanh Hiệu Ứng (Ting &amp; Pop SFX)</span>
                         <label class="switch">
                             <input type="checkbox" id="toggle-sfx" checked>
                             <span class="slider"></span>
                         </label>
                     </div>
 
-                    <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
-                        * Hệ thống tạo âm điệu Ting/Pop đặc trưng của Messenger qua Web Audio API và đọc lồng tiếng trực tiếp theo thời gian thực.
+                    <div class="setting-row">
+                        <span>⌨️ Hiện Thanh Nhập Liệu Messenger (1-1)</span>
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-bottom-bar" onchange="toggleBottomBarVisibility(this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-row">
+                        <span>✨ Hiệu Ứng Nổi &amp; Rung Tin Nhắn</span>
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-animations" checked onchange="toggleChatAnimations(this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
+                        * Khi mở qua <code>CHAY_STUDIO.bat/.sh</code>, hệ thống ưu tiên giọng Neural Edge-TTS; khi chạy web tĩnh sẽ tự chuyển sang Web Speech API.
                     </div>
                 </div>
 
-                <!-- [NEW] Tầng Xuất Bản CapCut Draft Chuyên Nghiệp -->
+                <!-- Tầng Xuất Bản CapCut Draft & Video MP4 Chuyên Nghiệp -->
                 <div class="control-group" style="border: 1px solid rgba(79, 172, 254, 0.35); background: linear-gradient(180deg, rgba(15, 23, 42, 0.6) 0%, rgba(30, 41, 59, 0.4) 100%);">
                     <div class="control-title" style="color: #38bdf8;">
-                        <span>📦 Xuất Bản Dự Án CapCut Desktop (0 Giây Lag)</span>
+                        <span>📦 Xuất Bản CapCut &amp; Video 9:16</span>
                     </div>
                     
-                    <p style="font-size: 12px; color: #cbd5e1; line-height: 1.5; margin-bottom: 12px;">
-                        Tự động đóng gói toàn bộ <strong>Timeline 4 Tracks</strong> (Nền Anime Sky 9:16 + Khung Chat Hội Thoại Cửa Thép + SFX Ting/Pop + <strong>Giọng Lồng Tiếng Chuẩn Tốc Độ 1.0x</strong>, không chèn chữ đè). Không lo đơ lag trình duyệt, không sợ TikTok gắn nhãn AI!
+                    <p id="server-export-hint" style="font-size: 11.5px; color: #cbd5e1; line-height: 1.5; margin-bottom: 6px;">
+                        Tự động đóng gói <strong>Timeline 4 Tracks</strong> (Nền 9:16 + Khung Chat Retina + SFX Ting/Pop + <strong>Giọng 1.0x</strong>). Kết nối <code>CHAY_STUDIO.bat/.sh</code> để render theo kịch bản bạn vừa sửa!
                     </p>
 
-                    <a href="assets/Cua_Thep_TikTok_Luxury.zip" download="Cua_Thep_TikTok_Luxury.zip" class="btn-capcut" id="btn-download-capcut">
+                    <a href="assets/Cua_Thep_TikTok_Luxury.zip" download="Cua_Thep_TikTok_Luxury.zip" class="btn-capcut" id="btn-download-capcut" onclick="exportCapCutFromStudio(event)">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-                        <span>Tải Gói Dự Án CapCut (.ZIP)</span>
+                        <span>Xuất Gói Dự Án CapCut (.ZIP)</span>
                     </a>
+
+                    <button type="button" id="btn-export-mp4" onclick="exportMp4FromStudio()" class="btn-export-mp4">
+                        🎬 Xuất Video MP4 Trực Tiếp (1080×1920)
+                    </button>
 
                     <!-- Hướng dẫn 3 bước cực nhanh -->
                     <div class="capcut-guide-box">
@@ -562,20 +625,19 @@ INBOX NGAY ĐỂ ỨNG TUYỂN!</textarea>
 
                         <div class="capcut-guide-step">
                             <span class="step-num">1</span>
-                            <div>Tải file <code>.ZIP</code> ở trên về máy tính và giải nén thư mục <code>Cua_Thep_TikTok_Luxury</code>.</div>
+                            <div>Tải file <code>.ZIP</code> ở trên và giải nén ra máy tính.</div>
                         </div>
 
                         <div class="capcut-guide-step">
                             <span class="step-num">2</span>
                             <div style="width: 100%;">
-                                Copy thư mục đó vào thư mục dự án CapCut:
-                                <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">Windows (Nhấn Win + R):</div>
+                                Nhấp đúp chạy <strong><code>CAI_DAT_VAO_CAPCUT.bat</code></strong> (Windows) hoặc <strong><code>CAI_DAT_VAO_CAPCUT.command</code></strong> (Mac) ngay bên trong thư mục vừa giải nén — dự án sẽ tự cài chuẩn đường dẫn!
+                                <div style="font-size: 10px; color: #94a3b8; margin-top: 4px;">Hoặc mở thư mục Draft thủ công:</div>
                                 <div class="path-code-box">
                                     <span>%LOCALAPPDATA%\CapCut\User Data\Projects\com.lveditor.draft\</span>
                                     <button type="button" class="btn-copy-mini" id="btn-copy-win" onclick="copyCapCutPath('%LOCALAPPDATA%\\CapCut\\User Data\\Projects\\com.lveditor.draft\\', 'btn-copy-win')">📋 Chép</button>
                                 </div>
-                                <div style="font-size: 10px; color: #94a3b8; margin-top: 4px;">macOS (Finder -> Cmd+Shift+G):</div>
-                                <div class="path-code-box">
+                                <div class="path-code-box" style="margin-top: 4px;">
                                     <span>~/Movies/CapCut/User Data/Projects/com.lveditor.draft/</span>
                                     <button type="button" class="btn-copy-mini" id="btn-copy-mac" onclick="copyCapCutPath('~/Movies/CapCut/User Data/Projects/com.lveditor.draft/', 'btn-copy-mac')">📋 Chép</button>
                                 </div>
@@ -584,13 +646,16 @@ INBOX NGAY ĐỂ ỨNG TUYỂN!</textarea>
 
                         <div class="capcut-guide-step">
                             <span class="step-num">3</span>
-                            <div>Mở CapCut Desktop -> Chọn dự án <strong>Cua_Thep_TikTok_Luxury</strong> -> Nhấn <strong>Export (Ctrl+E)</strong> là video 60fps hoàn thành trong 3 giây!</div>
+                            <div>Mở CapCut Desktop -&gt; Chọn dự án -&gt; Nhấn <strong>Export (Ctrl+E)</strong> là xong!</div>
                         </div>
                     </div>
 
-                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
-                        <span style="font-size: 11px; color: #94a3b8;">Hoặc chụp nhanh 1 frame tĩnh:</span>
-                        <button type="button" id="btn-screenshot" onclick="exportScreenshot()" class="btn-secondary" style="padding: 6px 12px; font-size: 11px; width: auto;">📷 Chụp Ảnh (.PNG)</button>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 8px;">
+                        <button type="button" id="btn-record" onclick="toggleVideoRecording()" class="btn-record" style="padding: 9px 12px; font-size: 12.5px;">⏺ Ghi Hình Web (.WEBM)</button>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 11px; color: #94a3b8;">Hoặc chụp nhanh 1 frame tĩnh:</span>
+                            <button type="button" id="btn-screenshot" onclick="exportScreenshot()" class="btn-secondary" style="padding: 6px 12px; font-size: 11px; width: auto;">📷 Chụp Ảnh (.PNG)</button>
+                        </div>
                     </div>
                     
                     <div id="render-status" style="display: none; padding: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; font-size: 12px; color: #10b981; font-weight: 500; margin-top: 8px;"></div>
@@ -601,9 +666,9 @@ INBOX NGAY ĐỂ ỨNG TUYỂN!</textarea>
                         <span>💡 Toàn Quyền Quản Lý:</span>
                     </div>
                     <ul style="font-size: 12px; color: #94a3b8; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; line-height: 1.4;">
-                        <li><strong>Chỉnh Sửa Tất Cả:</strong> Dù là Chủ tiệm hay Khách mẫu đều có thể ấn nút <strong>✏️ Sửa</strong> để thay tên, đổi ảnh avatar và tone giọng!</li>
-                        <li><strong>Nén Ảnh Tự Động:</strong> Khi bạn tải ảnh lên, Studio tự động thu gọn và nén ảnh (siêu nhẹ) để lưu vào trình duyệt mượt mà mà không sợ lỗi bộ nhớ.</li>
-                        <li><strong>Cập Nhật Video Ngay:</strong> Sửa avatar hay tên Chủ shop lập tức nhảy lên thanh Header của màn hình quay video bên cạnh!</li>
+                        <li><strong>Chỉnh Sửa Tất Cả:</strong> Dù là Chủ tiệm hay Khách mẫu đều có thể ấn nút <strong>✏️ Sửa</strong> để thay tên, đổi ảnh avatar, giọng AI và tone giọng!</li>
+                        <li><strong>Nén Ảnh Tự Động:</strong> Khi bạn tải ảnh lên, Studio tự động thu gọn và nén ảnh (siêu nhẹ) để lưu vào IndexedDB mượt mà.</li>
+                        <li><strong>Cập Nhật Video Ngay:</strong> Sửa kịch bản hay nhân vật xong chỉ cần bấm Export hoặc Phát Demo là đồng bộ tức thì!</li>
                     </ul>
                 </div>
 
@@ -612,8 +677,10 @@ INBOX NGAY ĐỂ ỨNG TUYỂN!</textarea>
 
     </main>
 
-    <script src="db.js?v=3.0"></script>
-    <script src="recorder.js?v=3.0"></script>
-    <script src="app.js?v=3.0"></script>
+    <div id="studio-toast" class="studio-toast" role="status" aria-live="polite"></div>
+
+    <script src="db.js?v=4.0"></script>
+    <script src="recorder.js?v=4.0"></script>
+    <script src="app.js?v=4.0"></script>
 </body>
 </html>

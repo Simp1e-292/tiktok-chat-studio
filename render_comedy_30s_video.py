@@ -15,36 +15,33 @@ import subprocess
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter
 
+from capcut_draft_generator import (
+    ASSETS_DIR as PUBLIC_ASSETS_DIR,
+    setup_capcut_ffmpeg_path,
+    synthesize_voice_file,
+    pick_h264_codec_args,
+    ensure_node_modules,
+)
+
 try:
     from gtts import gTTS
 except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "--break-system-packages", "gTTS"])
+    from capcut_draft_generator import _pip_install
+    _pip_install("gTTS")
     from gtts import gTTS
 
-
-def _setup_capcut_ffmpeg_path():
-    if shutil.which("ffmpeg") and shutil.which("ffprobe"):
-        return
-    local_apps = Path(os.path.expandvars(r"%LOCALAPPDATA%\CapCut\Apps"))
-    if local_apps.is_dir():
-        for exe in sorted(local_apps.rglob("ffmpeg.exe"), reverse=True):
-            tool_dir = str(exe.parent)
-            if tool_dir not in os.environ.get("PATH", ""):
-                os.environ["PATH"] = tool_dir + os.pathsep + os.environ.get("PATH", "")
-            break
-
-
-_setup_capcut_ffmpeg_path()
+setup_capcut_ffmpeg_path()
 
 WORKSPACE = Path(__file__).resolve().parent
 WORK_DIR = WORKSPACE / "comedy_30s_work"
 WORK_DIR.mkdir(parents=True, exist_ok=True)
 
-ASSETS_DIR = WORKSPACE / "capcut_projects" / "Cua_Thep_TikTok_Luxury" / "assets"
+_CAPCUT_ASSETS = WORKSPACE / "capcut_projects" / "Cua_Thep_TikTok_Luxury" / "assets"
+ASSETS_DIR = _CAPCUT_ASSETS if _CAPCUT_ASSETS.is_dir() else PUBLIC_ASSETS_DIR
 FRAMES_DIR = WORKSPACE / "render_30s_frames"
 if not FRAMES_DIR.exists():
-    FRAMES_DIR = ASSETS_DIR
-OUTPUT_MP4 = WORKSPACE / "video_mau_cua_thep_30s.mp4"
+    FRAMES_DIR = _CAPCUT_ASSETS if _CAPCUT_ASSETS.is_dir() else (WORK_DIR / "frames")
+OUTPUT_MP4 = WORKSPACE / "assets" / "video_mau_cua_thep_30s.mp4"
 
 # 8 câu thoại kịch bản THUẦN GIẢI TRÍ
 COMEDY_DIALOGUES = [
@@ -246,6 +243,11 @@ def render_composite_frames():
     draw_bezel = ImageDraw.Draw(bezel)
     draw_bezel.rounded_rectangle([(0, 0), (phone_w + 5, phone_h + 5)], radius=44, outline=(30, 41, 59, 255), width=3)
 
+    if not (FRAMES_DIR / "frame_0.png").exists():
+        ensure_node_modules()
+        FRAMES_DIR.mkdir(parents=True, exist_ok=True)
+        subprocess.run(["node", str(WORKSPACE / "render_frames.js"), str(FRAMES_DIR), "scenario_group_cuathep"], cwd=str(WORKSPACE), check=True)
+
     for i in range(9):
         frame_name = f"frame_{i}.png"
         phone_src = FRAMES_DIR / frame_name
@@ -340,9 +342,8 @@ def render_final_video(timeline, audio_path, total_dur):
         "-safe", "0",
         "-i", str(concat_txt),
         "-i", str(audio_path),
+        "-vf", "fps=30,format=yuv420p",
         *_pick_h264_codec_args(),
-        "-pix_fmt", "yuv420p",
-        "-r", "30",
         "-c:a", "aac",
         "-b:a", "192k",
         "-t", f"{total_dur:.2f}",
