@@ -1,0 +1,142 @@
+{
+  "title": "🚪 [HÀI HƯỚC NHẦM FILE] Cửa Khắc TÙNG ❤️ TRANG & Pha Bẻ Lái 10 Năm Cưới",
+  "desc": "Drama phòng thiết kế gửi nhầm file cửa 18tr khắc Tùng ❤️ Trang xuống xưởng, kế toán đòi trừ lương, ngờ đâu khách hàng mừng khóc vì đúng tên vợ chồng kỷ niệm 10 năm cưới!",
+  "theme": "group_messenger",
+  "groupName": "Văn Phòng Cửa Thép Luxury",
+  "groupUnread": 13,
+  "groupAvatar": "assets/steel_door_logo.png",
+  "bgWallpaper": "assets/bg_anime_sky.jpg",
+  "bubbleColor": "#ffd8e8",
+  "messages": [
+    {
+      "id": "tt_1",
+      "senderId": "char_hai",
+      "senderName": "Hải (CSKH)",
+      "sender": "customer",
+      "type": "text",
+      "content": "Toang rồi! Khách Ecopark gọi, cửa vừa lắp có khắc chữ TÙNG ❤️ TRANG to đùng!",
+      "delay": 1500,
+      "sfx": "ting"
+    },
+    {
+      "id": "tt_2",
+      "senderId": "char_thang",
+      "senderName": "Trưởng (TK)",
+      "sender": "customer",
+      "type": "text",
+      "content": "Bản vẽ của ai? Tùng anh hay Tùng em, khai mau!",
+      "delay": 1300,
+      "sfx": "ting"
+    },
+    {
+      "id": "tt_3",
+      "senderId": "char_cust_sieuhai",
+      "senderName": "Tùng anh",
+      "sender": "customer",
+      "type": "text",
+      "content": "Em có vợ con rồi nhé, đừng ai nhìn em! 🙏",
+      "delay": 1200,
+      "sfx": "ting"
+    },
+    {
+      "id": "tt_4",
+      "senderId": "char_cust_sinhvien",
+      "senderName": "Tùng em",
+      "sender": "customer",
+      "type": "text",
+      "content": "Dạ... em vẽ làm quà sinh nhật, lỡ gửi nhầm file xuống xưởng ạ 😭",
+      "delay": 1500,
+      "sfx": "ting"
+    },
+    {
+      "id": "tt_5",
+      "senderId": "char_vy",
+      "senderName": "Trang (CSKH)",
+      "sender": "owner",
+      "type": "text",
+      "content": "Khoan... Trang nào? Trang chăm sóc khách hàng này á?! 😳",
+      "delay": 1400,
+      "sfx": "pop"
+    },
+    {
+      "id": "tt_6",
+      "senderId": "char_owner_coba",
+      "senderName": "Nga (TK)",
+      "sender": "customer",
+      "type": "text",
+      "content": "Cả phòng thiết kế biết từ năm ngoái rồi, mỗi chị Trang không biết 😀",
+      "delay": 1400,
+      "sfx": "ting"
+    },
+    {
+      "id": "tt_7",
+      "senderId": "char_sep",
+      "senderName": "Thanh Hải (KT)",
+      "sender": "owner",
+      "type": "text",
+      "content": "Cánh cửa 18 triệu. Chị trừ dần vào lương Tùng em nhé!",
+      "delay": 1500,
+      "sfx": "pop"
+    },
+    {
+      "id": "tt_8",
+      "senderId": "char_vy",
+      "senderName": "Châm (MH)",
+      "sender": "customer",
+      "type": "text",
+      "content": "Mua hàng báo: phôi cánh đó hết rồi, đặt lại mất 2 tuần!",
+      "delay": 1300,
+      "sfx": "ting"
+    },
+    {
+      "id": "tt_9",
+      "senderId": "char_hai",
+      "senderName": "Hải (CSKH)",
+      "sender": "customer",
+      "type": "text",
+      "content": "KHOAN!!! Khách gọi lại! Chồng chị ấy tên Tùng, chị tên Trang, đúng kỷ niệm 10 năm cưới, chị khóc luôn!",
+      "delay": 1800,
+      "sfx": "ting"
+    },
+    {
+      "id": "tt_10",
+      "senderId": "char_hai",
+      "senderName": "Hải (CSKH)",
+      "sender": "customer",
+      "type": "text",
+      "content": "Chốt thêm 2 bộ cho nhà nội nhà ngoại, khắc y chang!",
+      "delay": 1400,
+      "sfx": "ting"
+    },
+    {
+      "id": "tt_11",
+      "senderId": "char_sep",
+      "senderName": "Thanh Hải (KT)",
+      "sender": "owner",
+      "type": "text",
+      "content": "...Thôi, không trừ lương nữa. Thưởng nóng!",
+      "delay": 1400,
+      "sfx": "pop"
+    },
+    {
+      "id": "tt_12",
+      "senderId": "char_vy",
+      "senderName": "Trang (CSKH)",
+      "sender": "owner",
+      "type": "text",
+      "content": "Thế... quà sinh nhật của em đâu? 🙈",
+      "delay": 1300,
+      "sfx": "pop"
+    },
+    {
+      "id": "tt_13",
+      "senderId": "char_owner_coba",
+      "senderName": "Kim (NS)",
+      "sender": "customer",
+      "type": "text",
+      "content": "Thứ Bảy em mang cà phê Buôn Ma Thuột lên, mừng cặp đôi đầu tiên của công ty! ☕ ❤️",
+      "delay": 1600,
+      "sfx": "ting"
+    }
+  ]
+}
