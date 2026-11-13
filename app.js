@@ -842,7 +842,7 @@ function speakText(text, pitch = 1.0, callback) {
     }
 
     utterance.pitch = pitch;
-    utterance.rate = 1.12;
+    utterance.rate = 1.0;
 
     utterance.onend = () => { if (callback) callback(); };
     utterance.onerror = () => { if (callback) callback(); };

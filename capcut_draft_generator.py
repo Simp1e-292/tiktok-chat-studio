@@ -2,19 +2,19 @@
 # -*- coding: utf-8 -*-
 """
 CapCut Draft Generator for TikTok Chat Studio
-Chuyên dụng cho Kịch bản: Cửa Thép Luxury (Biệt Thự & Test Búa Tạ Không Móp)
-Tạo gói Project chuẩn CapCut Desktop với 5 TRACKS ĐỘC LẬP:
+Chuyên dụng cho Kịch bản: Cửa Thép Luxury (Chốt Cọc 100 Bộ Biệt Thự)
+Tạo gói Project chuẩn CapCut Desktop với 4 TRACKS ĐỘC LẬP:
 - Track 1: Video Nền Anime Sky (1080x1920)
-- Track 2: Video Giao Diện Chat iPhone Retina (9 frames tuần tự)
+- Track 2: Video Giao Diện Chat iPhone Retina (9 frames tuần tự - đã có sẵn chữ sắc nét)
 - Track 3: Audio SFX (Ting & Pop Messenger)
-- Track 4: Audio Lồng Tiếng Voiceover Từng Nhân Vật (Giọng Sếp Adam trầm, Hải KT, Vy Sale, Thắng CT)
-- Track 5: Text Phụ Đề Subtitles Tự Động Khớp Giọng Nói
+- Track 4: Audio Lồng Tiếng Voiceover Từng Nhân Vật (Tốc độ chuẩn 1.0x tự nhiên)
 
-Người dùng chỉ cần giải nén vào thư mục Projects của CapCut và bấm Export (Ctrl+E)
+Người dùng chỉ cần mở CapCut Desktop và bấm Export (Ctrl+E)
 """
 
 import os
 import sys
+import time
 import json
 import uuid
 import stat
@@ -23,6 +23,43 @@ import zipfile
 import subprocess
 from pathlib import Path
 from PIL import Image
+
+
+def _setup_capcut_ffmpeg_path():
+    """Tự động tìm ffmpeg/ffprobe đi kèm CapCut Desktop trên Windows và thêm vào PATH"""
+    if shutil.which("ffmpeg") and shutil.which("ffprobe"):
+        return
+    local_apps = Path(os.path.expandvars(r"%LOCALAPPDATA%\CapCut\Apps"))
+    if local_apps.is_dir():
+        for exe in sorted(local_apps.rglob("ffmpeg.exe"), reverse=True):
+            tool_dir = str(exe.parent)
+            if tool_dir not in os.environ.get("PATH", ""):
+                os.environ["PATH"] = tool_dir + os.pathsep + os.environ.get("PATH", "")
+            break
+
+
+def clean_desktop_ini(root_dir: Path):
+    """Dọn sạch các file hệ thống desktop.ini do Google Drive tự sinh gây lỗi Git / Zip / CapCut"""
+    if not root_dir.exists():
+        return
+    removed = 0
+    for ini_file in root_dir.rglob("desktop.ini"):
+        try:
+            os.chmod(ini_file, stat.S_IWRITE)
+            ini_file.unlink()
+            removed += 1
+        except Exception:
+            try:
+                subprocess.run(f'attrib -r -h -s "{ini_file}"', shell=True, capture_output=True)
+                ini_file.unlink()
+                removed += 1
+            except Exception:
+                pass
+    if removed:
+        print(f"[GoogleDrive-Fix] Đã dọn {removed} file desktop.ini trong {root_dir.name}")
+
+
+_setup_capcut_ffmpeg_path()
 
 # Robust rmtree for Windows (handles hidden/system/readonly desktop.ini)
 _orig_rmtree = shutil.rmtree
@@ -219,14 +256,20 @@ def generate_voiceovers(target_assets_dir: Path):
         else:
             voice_name = "vi-VN-NamMinhNeural"
 
-        # Tạo mới giọng đọc ở tốc độ chuẩn 1.0x
+        # Tạo mới giọng đọc ở tốc độ chuẩn 1.0x (có retry 3 lần tránh lỗi mạng tạm thời)
         success = False
         if has_edge_tts:
-            try:
-                asyncio.run(_render_edge(item["text"], voice_name, out_path))
-                success = True
-            except Exception as e:
-                print(f" [VoiceEngine Warning] Edge-TTS lỗi ở câu {item['index']}: {e}, chuyển sang gTTS")
+            for attempt in range(1, 4):
+                try:
+                    asyncio.run(_render_edge(item["text"], voice_name, out_path))
+                    if out_path.exists() and out_path.stat().st_size > 1000:
+                        success = True
+                        break
+                except Exception as e:
+                    print(f" [VoiceEngine Retry {attempt}/3] Edge-TTS lỗi ở câu {item['index']}: {e}")
+                    time.sleep(1.0)
+            if not success:
+                print(f" [VoiceEngine Warning] Chuyển sang gTTS cho câu {item['index']}")
 
         if not success:
             tts = gTTS(item["text"], lang="vi")
@@ -341,7 +384,7 @@ def calculate_synced_timeline(assets_dir: Path):
 
 
 def build_capcut_project(output_root: Path, project_name: str) -> Path:
-    """Xây dựng Timeline CapCut 5 Tracks: Background, Phone Screen, SFX, Voiceover, Subtitles"""
+    """Xây dựng Timeline CapCut 4 Tracks: Background, Phone Screen, SFX, Voiceover (1.0x, không chữ đè)"""
     output_root.mkdir(parents=True, exist_ok=True)
     draft_folder = DraftFolder(str(output_root))
 
@@ -524,34 +567,23 @@ def create_user_guide(proj_dir: Path, total_duration_s: float):
     """Tạo file HƯỚNG_DẪN_SỬ_DỤNG_CAPCUT.txt đính kèm"""
     guide_text = f"""================================================================================
 🎬 HƯỚNG DẪN MỞ DỰ ÁN CAPCUT TRÊN MÁY TÍNH (WINDOWS & MAC)
-Chủ đề: Văn Phòng Công Ty Cửa Thép Luxury - Nghiệm Thu Biệt Thự & Test Búa Tạ
-Thời lượng: {total_duration_s:.1f} giây • 5 Tracks Dựng Sẵn • Lồng Tiếng Đa Nhân Vật
+Chủ đề: Văn Phòng Công Ty Cửa Thép Luxury - Chốt Cọc 100 Bộ Biệt Thự
+Thời lượng: {total_duration_s:.1f} giây • 4 Tracks Sạch Sẽ (Không Chữ Đè) • Giọng Chuẩn 1.0x
 ================================================================================
 
 Dự án này đã được tự động dựng sẵn 100% gồm:
 1. Track Nền: Bầu trời Anime Pastel chuẩn 9:16 (1080x1920)
-2. Track Giao Diện: Toàn bộ 8 khung hình tin nhắn chat iPhone Retina
+2. Track Giao Diện: Toàn bộ 9 khung hình tin nhắn chat iPhone Retina (đã có chữ sẵn trong khung chat)
 3. Track Âm Thanh SFX: Hiệu ứng Ting & Pop Messenger khớp từng khung hình
-4. Track Giọng Đọc (Voiceover): 
-   - Giọng Sếp Tổng: Nam trầm quyền lực chuẩn phong cách ADAM
-   - Giọng Hải Kỹ Thuật: Nam trẻ trung năng động
-   - Giọng Vy Sale: Nữ tươi vui báo nổ cọc 350 triệu
-   - Giọng Thắng Công Trình: Nam công trình khỏe khoắn
-5. Track Phụ Đề (Subtitles): Chữ chạy Subtitle nổi bật viền đen
-
---------------------------------------------------------------------------------
-💡 MẸO ĐỔI SANG CÁC GIỌNG AI KHÁC TRỰC TIẾP TRONG CAPCUT:
---------------------------------------------------------------------------------
-- Nếu bạn muốn đổi sang giọng ADAM nguyên bản tiếng Anh của CapCut hoặc các giọng 
-  tiếng Việt như "Thanh Niên", "Cô Gái Tự Tin", "Nam Truyền Cảm":
-  1. Nhấp chọn Track Phụ Đề (Subtitles) trên dòng thời gian CapCut.
-  2. Ở góc trên bên phải, bấm vào tab [Văn bản thành giọng nói] (Text to Speech).
-  3. Chọn giọng đọc bạn thích rồi bấm [Áp dụng] -> CapCut sẽ tự đổi giọng ngay!
+4. Track Giọng Đọc (Voiceover - Tốc độ chuẩn 1.0x tự nhiên):
+   - Giọng Sếp Tổng: Nam trầm (vi-VN-NamMinhNeural)
+   - Giọng Vy Sale: Nữ tươi vui (vi-VN-HoaiMyNeural)
+   - Giọng Hải Kỹ Thuật & Thắng Công Trình: Nam rõ chữ (vi-VN-NamMinhNeural)
 
 --------------------------------------------------------------------------------
 👉 BƯỚC 1: COPY DỰ ÁN VÀO THƯ MỤC CAPCUT DRAFT CỦA BẠN
 --------------------------------------------------------------------------------
-Hãy copy toàn bộ thư mục [Cua_Thep_TikTok_Luxury] vào đúng đường dẫn sau trên máy bạn:
+(Nếu bạn chạy capcut_draft_generator.py trên Windows, hệ thống đã tự chép và chuẩn hóa đường dẫn sẵn vào CapCut Desktop rồi!)
 
 * TRÊN HỆ ĐIỀU HÀNH WINDOWS:
   Nhấn tổ hợp phím [Windows + R], dán dòng sau rồi Enter:
@@ -559,14 +591,9 @@ Hãy copy toàn bộ thư mục [Cua_Thep_TikTok_Luxury] vào đúng đường d
   (Hoặc nếu bạn dùng bản CapCut Trung Quốc - JianYing Pro:
    %LOCALAPPDATA%\\JianyingPro\\User Data\\Projects\\com.lveditor.draft\\)
 
-  👉 Dán thư mục [Cua_Thep_TikTok_Luxury] vào đó!
-
 * TRÊN MAC (macOS):
   Mở Finder -> Nhấn Cmd + Shift + G và dán đường dẫn:
   ~/Movies/CapCut/User Data/Projects/com.lveditor.draft/
-  (Hoặc: ~/Movies/JianyingPro/User Data/Projects/com.lveditor.draft/)
-
-  👉 Dán thư mục [Cua_Thep_TikTok_Luxury] vào đó!
 
 --------------------------------------------------------------------------------
 👉 BƯỚC 2: MỞ CAPCUT VÀ XUẤT VIDEO (SIÊU NHANH & KHÔNG LAG)
@@ -574,17 +601,9 @@ Hãy copy toàn bộ thư mục [Cua_Thep_TikTok_Luxury] vào đúng đường d
 1. Khởi động phần mềm CapCut Desktop trên máy tính.
 2. Ngay trên màn hình chính của CapCut, bạn sẽ thấy ngay dự án:
    "Cua_Thep_TikTok_Luxury" (Thời lượng ~{total_duration_s:.0f}s).
-3. Bấm mở dự án -> Toàn bộ 5 tracks đã khớp giọng đọc và chữ chạy.
+3. Bấm mở dự án -> Toàn bộ 4 tracks đã khớp giọng đọc 1.0x.
 4. Bấm ngay: [Export] (phím tắt Ctrl + E trên Windows hoặc Cmd + E trên Mac).
-5. Chọn độ phân giải: 1080p, 60fps, Bitrate: Recommended.
-6. Bấm [Export] -> CapCut dùng GPU máy tính xuất video trong 3-5 giây!
-
---------------------------------------------------------------------------------
-🔥 TẠI SAO CÁCH NÀY KHÔNG BỊ TIKTOK BÓP TƯƠNG TÁC?
---------------------------------------------------------------------------------
-- Video xuất ra có chữ ký metadata gốc của ByteDance CapCut (phần mềm chính chủ).
-- TikTok không bao giờ gắn nhãn "Nội dung do AI tạo" (AI-generated content).
-- Thuật toán TikTok ưu tiên đề xuất cho video xuất từ CapCut.
+5. Chọn độ phân giải: 1080p, 60fps, Bitrate: Recommended -> Xuất video trong 3-5 giây!
 ================================================================================
 """
     with open(proj_dir / "HUONG_DAN_SU_DUNG.txt", "w", encoding="utf-8") as f:
@@ -592,11 +611,13 @@ Hãy copy toàn bộ thư mục [Cua_Thep_TikTok_Luxury] vào đúng đường d
 
 
 def package_to_zip(proj_dir: Path, zip_dest: Path):
-    """Nén toàn bộ thư mục dự án thành file .zip để người dùng tải về"""
+    """Nén toàn bộ thư mục dự án thành file .zip để người dùng tải về (bỏ qua desktop.ini)"""
     print(f"[Generator] Đang nén gói dự án thành: {zip_dest}")
     with zipfile.ZipFile(zip_dest, "w", zipfile.ZIP_DEFLATED) as zf:
         for root, dirs, files in os.walk(proj_dir):
             for file in files:
+                if file.lower() == "desktop.ini":
+                    continue
                 full_path = Path(root) / file
                 rel_path = full_path.relative_to(proj_dir.parent)
                 zf.write(full_path, rel_path)
@@ -606,14 +627,16 @@ def package_to_zip(proj_dir: Path, zip_dest: Path):
 def main():
     print("=" * 60)
     print("🎬 CAPCUT DRAFT GENERATOR - TIKTOK CHAT STUDIO LUXURY")
-    print("🔊 TÍCH HỢP BỘ GIỌNG ĐỌC LỒNG TIẾNG ĐA NHÂN VẬT (ADAM STYLE)")
+    print("🔊 TÍCH HỢP GIỌNG ĐỌC CHUẨN 1.0X • 4 TRACKS SẠCH KHÔNG CHỮ ĐÈ")
     print("=" * 60)
 
+    clean_desktop_ini(WORKSPACE)
     proj_dir = build_capcut_project(OUTPUT_DIR, PROJECT_NAME)
     
     with open(proj_dir / "draft_meta_info.json", "r", encoding="utf-8") as f:
         meta = json.load(f)
-    total_dur_s = meta.get("tm_duration", 43000000) / 1000000.0
+    total_dur_us = int(meta.get("tm_duration", 43000000))
+    total_dur_s = total_dur_us / 1000000.0
 
     create_user_guide(proj_dir, total_dur_s)
     package_to_zip(proj_dir, ZIP_PATH)
@@ -624,7 +647,12 @@ def main():
         dest_capcut_draft = Path(local_capcut_dir) / PROJECT_NAME
         if dest_capcut_draft.exists():
             shutil.rmtree(dest_capcut_draft, ignore_errors=True)
-        shutil.copytree(proj_dir, dest_capcut_draft)
+        shutil.copytree(proj_dir, dest_capcut_draft, ignore=shutil.ignore_patterns("desktop.ini"))
+
+        # Chuẩn hóa lại toàn bộ đường dẫn tuyệt đối TRÊN CHÍNH THƯ MỤC ĐÍCH của CapCut Desktop
+        post_process_capcut_draft(dest_capcut_draft, PROJECT_NAME, total_dur_us)
+        with open(dest_capcut_draft / "draft_meta_info.json", "r", encoding="utf-8") as f_dest_meta:
+            dest_meta = json.load(f_dest_meta)
         
         # Cập nhật root_meta_info.json của CapCut Desktop để nhận diện ngay lập tức
         root_meta_path = Path(local_capcut_dir) / "root_meta_info.json"
@@ -638,13 +666,13 @@ def main():
                     entry = {"draft_name": PROJECT_NAME}
                     all_drafts.insert(0, entry)
                 entry.update({
-                    "draft_id": meta["draft_id"],
+                    "draft_id": dest_meta["draft_id"],
                     "draft_fold_path": dest_capcut_draft.as_posix(),
                     "draft_root_path": Path(local_capcut_dir).as_posix(),
                     "draft_json_file": (dest_capcut_draft / "draft_content.json").as_posix(),
                     "draft_cover": (dest_capcut_draft / "draft_cover.jpg").as_posix(),
                     "draft_new_version": "164.0.0",
-                    "tm_duration": int(total_dur_s * 1000000)
+                    "tm_duration": total_dur_us
                 })
                 with open(root_meta_path, "w", encoding="utf-8") as f_root:
                     json.dump(r_data, f_root, ensure_ascii=False)

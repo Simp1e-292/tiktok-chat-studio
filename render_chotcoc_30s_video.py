@@ -9,6 +9,7 @@ Tốc độ: 1.15x tự nhiên, chuẩn giọng ADAM & dàn nhân vật
 
 import os
 import sys
+import shutil
 import subprocess
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter
@@ -19,12 +20,29 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "--break-system-packages", "gTTS"])
     from gtts import gTTS
 
-WORKSPACE = Path("/home/antigravity")
+
+def _setup_capcut_ffmpeg_path():
+    if shutil.which("ffmpeg") and shutil.which("ffprobe"):
+        return
+    local_apps = Path(os.path.expandvars(r"%LOCALAPPDATA%\CapCut\Apps"))
+    if local_apps.is_dir():
+        for exe in sorted(local_apps.rglob("ffmpeg.exe"), reverse=True):
+            tool_dir = str(exe.parent)
+            if tool_dir not in os.environ.get("PATH", ""):
+                os.environ["PATH"] = tool_dir + os.pathsep + os.environ.get("PATH", "")
+            break
+
+
+_setup_capcut_ffmpeg_path()
+
+WORKSPACE = Path(__file__).resolve().parent
 WORK_DIR = WORKSPACE / "chotcoc_work"
 WORK_DIR.mkdir(parents=True, exist_ok=True)
 
-FRAMES_DIR = WORKSPACE / "chotcoc_frames"
 ASSETS_DIR = WORKSPACE / "capcut_projects" / "Cua_Thep_TikTok_Luxury" / "assets"
+FRAMES_DIR = WORKSPACE / "chotcoc_frames"
+if not FRAMES_DIR.exists():
+    FRAMES_DIR = ASSETS_DIR
 OUTPUT_MP4 = WORKSPACE / "video_mau_cua_thep_30s.mp4"
 
 DIALOGUES = [
@@ -111,34 +129,23 @@ DIALOGUES = [
 ]
 
 def synthesize_voices():
-    print("[1/5] Tổng hợp giọng đọc Chốt Cọc Hài Hước (1.15x, chuẩn ADAM)...")
+    print("[1/5] Chuẩn bị giọng đọc Chốt Cọc Hài Hước (tốc độ chuẩn 1.0x)...")
     total_voice_dur = 0.0
 
     for d in DIALOGUES:
-        raw_tts = WORK_DIR / f"raw_{d['id']}.mp3"
-        filtered_tts = WORK_DIR / f"voice_{d['id']}.mp3"
-
-        tts = gTTS(text=d["text"], lang="vi", slow=False)
-        tts.save(str(raw_tts))
-
-        role = d["role"]
-        spd = d["speed"]
-        if role == "sep":
-            # ADAM style: Deep bass boost 120Hz + lower pitch formant
-            flt = f"atempo={spd},asetrate=44100*0.93,aresample=44100,equalizer=f=120:width_type=o:width=1:g=5,volume=1.25"
-        elif role == "vy":
-            flt = f"atempo={spd},asetrate=44100*1.15,aresample=44100,volume=1.15"
-        elif role == "thang":
-            flt = f"atempo={spd},asetrate=44100*1.02,aresample=44100,volume=1.15"
-        else: # hai
-            flt = f"atempo={spd},asetrate=44100*1.04,aresample=44100,volume=1.15"
-
-        cmd = [
-            "ffmpeg", "-y", "-i", str(raw_tts),
-            "-filter:a", flt,
-            "-vn", str(filtered_tts)
-        ]
-        subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+        prebuilt = ASSETS_DIR / f"voice_{d['index']}_{d['role']}.mp3"
+        if prebuilt.exists() and prebuilt.stat().st_size > 1000:
+            filtered_tts = prebuilt
+        else:
+            raw_tts = WORK_DIR / f"raw_{d['id']}.mp3"
+            filtered_tts = WORK_DIR / f"voice_{d['id']}.mp3"
+            tts = gTTS(text=d["text"], lang="vi", slow=False)
+            tts.save(str(raw_tts))
+            subprocess.run([
+                "ffmpeg", "-y", "-i", str(raw_tts),
+                "-filter:a", "atempo=1.0,volume=1.15",
+                "-vn", str(filtered_tts)
+            ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 
         dur = float(subprocess.check_output([
             "ffprobe", "-v", "error", "-show_entries", "format=duration",
@@ -148,18 +155,16 @@ def synthesize_voices():
         d["voice_path"] = filtered_tts
         d["voice_dur"] = dur
         total_voice_dur += dur
-        print(f"  - [{d['id']}] {role}: {dur:.2f}s -> {d['sub']}")
+        print(f"  - [{d['id']}] {d['role']} (1.0x): {dur:.2f}s -> {d['sub']}")
 
     print(f"  Tổng thời lượng giọng đọc: {total_voice_dur:.2f}s")
     return total_voice_dur
 
 def calculate_timeline(total_voice_dur):
-    print("[2/5] Tính toán timeline đồng bộ cho video ~30.5s...")
-    TARGET_TOTAL = 30.50
-    INTRO_DUR = 0.40
-
-    rem = TARGET_TOTAL - INTRO_DUR - total_voice_dur
-    pause_per_step = max(0.15, rem / 8.0)
+    print("[2/5] Tính toán timeline đồng bộ chuẩn tốc độ 1.0x...")
+    INTRO_DUR = 0.50
+    pause_per_step = 0.30
+    TARGET_TOTAL = INTRO_DUR + total_voice_dur + (pause_per_step * len(DIALOGUES))
 
     timeline = []
     timeline.append({
@@ -172,10 +177,9 @@ def calculate_timeline(total_voice_dur):
     curr = INTRO_DUR
     for i, d in enumerate(DIALOGUES):
         v_dur = d["voice_dur"]
-        if i < len(DIALOGUES) - 1:
-            step_dur = v_dur + pause_per_step
-        else:
-            step_dur = TARGET_TOTAL - curr
+        step_dur = v_dur + pause_per_step
+        if i == len(DIALOGUES) - 1:
+            step_dur = max(step_dur, TARGET_TOTAL - curr)
 
         d["start_time"] = curr
         timeline.append({
@@ -287,15 +291,34 @@ def build_audio_track(timeline, total_dur):
     print(f"  Đã trộn âm thanh hoàn tất: {audio_out}")
     return audio_out
 
+def _pick_h264_codec_args():
+    """Chọn encoder H.264 khả dụng (libx264 hoặc Windows h264_mf/nvenc/qsv đi kèm CapCut ffmpeg)"""
+    try:
+        enc_out = subprocess.check_output(["ffmpeg", "-encoders"], stderr=subprocess.STDOUT).decode(errors="ignore")
+    except Exception:
+        enc_out = ""
+    if "libx264" in enc_out:
+        return ["-c:v", "libx264", "-preset", "medium", "-crf", "19"]
+    if "h264_mf" in enc_out:
+        return ["-c:v", "h264_mf", "-b:v", "5M"]
+    if "h264_nvenc" in enc_out:
+        return ["-c:v", "h264_nvenc", "-b:v", "5M"]
+    if "h264_qsv" in enc_out:
+        return ["-c:v", "h264_qsv", "-b:v", "5M"]
+    return ["-c:v", "mpeg4", "-q:v", "3"]
+
+
 def render_final_video(timeline, audio_path, total_dur):
     print("[5/5] Mã hóa Video MP4 1080x1920 30fps bằng ffmpeg...")
     concat_txt = WORK_DIR / "concat_chotcoc.txt"
     with open(concat_txt, "w", encoding="utf-8") as f:
         f.write("ffconcat version 1.0\n")
         for item in timeline:
-            f.write(f"file '{WORK_DIR / ('comp_' + item['frame'].replace('frame_', ''))}'\n")
+            img_p = (WORK_DIR / ('comp_' + item['frame'].replace('frame_', ''))).as_posix()
+            f.write(f"file '{img_p}'\n")
             f.write(f"duration {item['duration']:.3f}\n")
-        f.write(f"file '{WORK_DIR / ('comp_' + timeline[-1]['frame'].replace('frame_', ''))}'\n")
+        last_p = (WORK_DIR / ('comp_' + timeline[-1]['frame'].replace('frame_', ''))).as_posix()
+        f.write(f"file '{last_p}'\n")
 
     cmd = [
         "ffmpeg", "-y",
@@ -303,9 +326,7 @@ def render_final_video(timeline, audio_path, total_dur):
         "-safe", "0",
         "-i", str(concat_txt),
         "-i", str(audio_path),
-        "-c:v", "libx264",
-        "-preset", "medium",
-        "-crf", "19",
+        *_pick_h264_codec_args(),
         "-pix_fmt", "yuv420p",
         "-r", "30",
         "-c:a", "aac",

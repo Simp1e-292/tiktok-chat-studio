@@ -12,11 +12,27 @@ import os
 import sys
 import json
 import math
+import shutil
 import subprocess
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter
 
-WORKSPACE = Path("/home/antigravity")
+
+def _setup_capcut_ffmpeg_path():
+    if shutil.which("ffmpeg") and shutil.which("ffprobe"):
+        return
+    local_apps = Path(os.path.expandvars(r"%LOCALAPPDATA%\CapCut\Apps"))
+    if local_apps.is_dir():
+        for exe in sorted(local_apps.rglob("ffmpeg.exe"), reverse=True):
+            tool_dir = str(exe.parent)
+            if tool_dir not in os.environ.get("PATH", ""):
+                os.environ["PATH"] = tool_dir + os.pathsep + os.environ.get("PATH", "")
+            break
+
+
+_setup_capcut_ffmpeg_path()
+
+WORKSPACE = Path(__file__).resolve().parent
 WORK_DIR = WORKSPACE / "render_30s"
 WORK_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -287,16 +303,30 @@ def build_audio_track(timeline):
     print(f"  Đã trộn âm thanh hoàn tất: {audio_out}")
     return audio_out
 
+def _pick_h264_codec_args():
+    try:
+        enc_out = subprocess.check_output(["ffmpeg", "-encoders"], stderr=subprocess.STDOUT).decode(errors="ignore")
+    except Exception:
+        enc_out = ""
+    if "libx264" in enc_out:
+        return ["-c:v", "libx264", "-preset", "medium", "-crf", "19"]
+    if "h264_mf" in enc_out:
+        return ["-c:v", "h264_mf", "-b:v", "5M"]
+    return ["-c:v", "mpeg4", "-q:v", "3"]
+
+
 def render_final_video(timeline, audio_path):
     print("[5/5] Mã hóa Video MP4 1080x1920 30fps hoàn chỉnh bằng ffmpeg...")
     concat_txt = WORK_DIR / "concat_video.txt"
     with open(concat_txt, "w", encoding="utf-8") as f:
         f.write("ffconcat version 1.0\n")
         for item in timeline:
-            f.write(f"file '{WORK_DIR / ('comp_' + item['frame'].replace('frame_', ''))}'\n")
+            img_p = (WORK_DIR / ('comp_' + item['frame'].replace('frame_', ''))).as_posix()
+            f.write(f"file '{img_p}'\n")
             f.write(f"duration {item['duration']:.3f}\n")
         # Concat demuxer requirement: repeat last file without duration
-        f.write(f"file '{WORK_DIR / ('comp_' + timeline[-1]['frame'].replace('frame_', ''))}'\n")
+        last_p = (WORK_DIR / ('comp_' + timeline[-1]['frame'].replace('frame_', ''))).as_posix()
+        f.write(f"file '{last_p}'\n")
 
     cmd = [
         "ffmpeg", "-y",
@@ -304,9 +334,7 @@ def render_final_video(timeline, audio_path):
         "-safe", "0",
         "-i", str(concat_txt),
         "-i", str(audio_path),
-        "-c:v", "libx264",
-        "-preset", "medium",
-        "-crf", "19",
+        *_pick_h264_codec_args(),
         "-pix_fmt", "yuv420p",
         "-r", "30",
         "-c:a", "aac",

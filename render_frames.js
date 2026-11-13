@@ -1,15 +1,37 @@
 const puppeteer = require('puppeteer-core');
 const path = require('path');
 const fs = require('fs');
+const { pathToFileURL } = require('url');
+
+function resolveBrowserExecutable() {
+    if (process.env.CHROME_PATH && fs.existsSync(process.env.CHROME_PATH)) {
+        return process.env.CHROME_PATH;
+    }
+    const candidates = process.platform === 'win32'
+        ? [
+            'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+            'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+            'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+            'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+            path.join(process.env.LOCALAPPDATA || '', 'Google\\Chrome\\Application\\chrome.exe')
+        ]
+        : ['/usr/bin/chromium', '/usr/bin/chromium-browser', '/usr/bin/google-chrome'];
+
+    for (const p of candidates) {
+        if (p && fs.existsSync(p)) return p;
+    }
+    throw new Error('Không tìm thấy trình duyệt Chrome/Edge/Chromium trên máy!');
+}
 
 async function renderChatFrames(outputDir) {
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    console.log('[RenderFrames] Launching headless Chromium...');
+    const executablePath = resolveBrowserExecutable();
+    console.log('[RenderFrames] Launching headless browser:', executablePath);
     const browser = await puppeteer.launch({
-        executablePath: '/usr/bin/chromium',
+        executablePath,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -23,7 +45,7 @@ async function renderChatFrames(outputDir) {
     await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 2 });
 
     const htmlPath = path.resolve(__dirname, 'index.html');
-    const fileUrl = `file://${htmlPath}?mode=group`;
+    const fileUrl = `${pathToFileURL(htmlPath).href}?mode=group`;
     console.log('[RenderFrames] Loading page:', fileUrl);
     await page.goto(fileUrl, { waitUntil: 'load' });
     await new Promise(r => setTimeout(r, 800));
