@@ -2201,7 +2201,17 @@ async function exportMp4FromStudio() {
     }
 
     if (!serverAvailable) {
-        showToast('ℹ️ Chế độ Web Tĩnh: Chạy CHAY_STUDIO.bat/.sh để xuất MP4 1080×1920, hoặc bấm "⏺ Ghi Hình Web (.WEBM)".', 'warn', 5000);
+        if (currentScenarioKey === 'scenario_group_cuathep') {
+            showToast('📱 Đang tải video MP4 1080×1920 (Cửa Thép Luxury) về điện thoại để mở CapCut...', 'success', 5000);
+            const a = document.createElement('a');
+            a.href = 'assets/video_mau_cua_thep_30s.mp4';
+            a.download = 'Cua_Thep_TikTok_Luxury_1080x1920.mp4';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            return;
+        }
+        showToast('ℹ️ Chế độ Web Tĩnh: Bấm "⏺ Ghi Hình Web (.WEBM)" bên dưới để xuất kịch bản vừa sửa trên điện thoại, hoặc kết nối CHAY_STUDIO.bat/.sh trên máy tính để render MP4.', 'warn', 5000);
         return;
     }
 
