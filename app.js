@@ -2742,9 +2742,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderScenarioCards();
     updateVoiceUploadStatusUI();
 
-    // ---- 3. Kích hoạt Mode khởi đầu ----
+    // ---- 3. Kích hoạt Mode & Kịch bản khởi đầu ----
+    const scenarioParam = urlParams.get('scenario');
     const modeParam = urlParams.get('mode');
-    if (modeParam === 'group') {
+    if (scenarioParam && scenarios[scenarioParam]) {
+        selectScenario(scenarioParam);
+    } else if (modeParam === 'group') {
         switchStudioMode('group');
     } else if (modeParam === 'fb') {
         switchStudioMode('fb');
