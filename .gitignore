@@ -21,3 +21,14 @@ comedy_30s_work/
 render_30s_frames/
 chotcoc_frames/
 /video_mau_cua_thep_30s.mp4
+.env
+episode1_frames/
+episode1_work/
+/video_tap_01_cua_khac_ten_crush.mp4
+episode1_v2_frames/
+episode1_v2_work/
+vieneu_episode1_voices/
+vieneu_episode1_v2_voices/
+elevenlabs_episode1_voices/
+/video_tap_01_v2_quen_tat_layer_cad.mp4
+__pycache__/

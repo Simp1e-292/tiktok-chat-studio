@@ -1003,8 +1003,11 @@ function appendMessage(msg) {
         row.className = 'group-message-row';
 
         let bubbleHtml = '';
-        if (msg.type === 'text') {
-            bubbleHtml = `<div class="bubble-group-pink">${msg.content}</div>`;
+        const mediaHtml = msg.media
+            ? `<img class="group-chat-media" src="${msg.media}" style="display:block; width:100%; max-width:220px; max-height:180px; border-radius:12px; margin-top:${msg.content ? '8px' : '0'}; object-fit:cover;">`
+            : '';
+        if (msg.type === 'text' || !msg.type) {
+            bubbleHtml = `<div class="bubble-group-pink">${msg.content || ''}${mediaHtml}</div>`;
         } else if (msg.type === 'product_card' || msg.type === 'product') {
             bubbleHtml = `
                 <div class="bubble bubble-product">
