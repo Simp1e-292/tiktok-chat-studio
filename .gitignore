@@ -32,3 +32,9 @@ vieneu_episode1_v2_voices/
 elevenlabs_episode1_voices/
 /video_tap_01_v2_quen_tat_layer_cad.mp4
 __pycache__/
+*.py[cod]
+.venv/
+venv/
+assets/.tts_cache/
+studio_exports/
+*.tmp
