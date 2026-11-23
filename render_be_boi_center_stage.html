@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Văn Phòng Khủng Long — Bể Bơi Vô Cực (Center-Focus Cinema Style)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #000000;
+  }
+
+  /* Nền đen tuyền 9:16 chuẩn kiểu Con Bò Đi Làm */
+  .stage {
+    position: relative;
+    width: 1080px;
+    height: 1920px;
+    background: #000000;
+    overflow: hidden;
+  }
+
+  /* VÙNG VÀNG GIỮA MÀN HÌNH:
+     - Chừa 250px trên: né sạch đồng hồ + tai thỏ + thanh Tìm kiếm TikTok
+     - Chừa 510px dưới: né sạch tên kênh + tiêu đề bài đăng + hashtag + thanh bình luận */
+  .safe-center-stage {
+    position: absolute;
+    top: 250px;
+    bottom: 510px;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: 22px;
+  }
+
+  .top-banner-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 0 36px;
+    flex-shrink: 0;
+  }
+
+  .banner-hook {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    border: 3px solid #fef08a;
+    color: #ffffff;
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.25;
+    text-align: center;
+    padding: 15px 28px;
+    border-radius: 22px;
+    box-shadow: 0 10px 30px rgba(220, 38, 38, 0.35);
+    max-width: 960px;
+  }
+
+  .banner-series {
+    background: rgba(30, 41, 59, 0.92);
+    border: 2px solid #38bdf8;
+    color: #e0f2fe;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    padding: 9px 28px;
+    border-radius: 999px;
+  }
+
+  /* Dải khung chat full ngang 1080px nằm gọn chính giữa màn hình */
+  .chat-strip {
+    width: 1080px;
+    background: linear-gradient(180deg, #dff4ff 0%, #c7ebff 100%);
+    border-top: 3px solid rgba(255, 255, 255, 0.55);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.55);
+    padding: 22px 175px 30px 26px; /* chừa 175px mép phải né cụm Tim/Comment/Avatar TikTok */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: background 0.25s ease;
+  }
+
+  .chat-strip.night-mode {
+    background: linear-gradient(180deg, #172554 0%, #0f172a 100%);
+    border-top-color: #38bdf8;
+    border-bottom-color: #38bdf8;
+  }
+
+  .strip-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(15, 23, 42, 0.10);
+  }
+
+  .chat-strip.night-mode .strip-header {
+    border-bottom-color: rgba(255, 255, 255, 0.16);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .back-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .unread-badge {
+    background: #1e3a8a;
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 800;
+    padding: 3px 14px;
+    border-radius: 999px;
+  }
+
+  .group-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+    flex-shrink: 0;
+  }
+
+  .group-name {
+    font-size: 38px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+
+  .chat-strip.night-mode .group-name {
+    color: #f8fafc;
+  }
+
+  .header-icons {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-shrink: 0;
+  }
+
+  /* Vùng chứa lượt thoại đang đọc — chữ siêu to rõ 44px */
+  .active-turn {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 180px;
+    justify-content: center;
+  }
+
+  /* Lượt bên TRÁI (đồng nghiệp / Sếp) */
+  .turn-left {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .avatar-circle {
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 27px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+    border: 3px solid #ffffff;
+  }
+
+  .turn-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sender-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #334155;
+    padding-left: 8px;
+  }
+
+  .chat-strip.night-mode .sender-name {
+    color: #bae6fd;
+  }
+
+  .bubble-left {
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 44px;
+    line-height: 1.30;
+    font-weight: 600;
+    padding: 18px 28px;
+    border-radius: 30px;
+    border-bottom-left-radius: 10px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+    word-wrap: break-word;
+    max-width: 100%;
+  }
+
+  /* Nếu có 2 bong bóng xếp chồng cùng 1 người (giống hệt Con Bò Đi Làm) */
+  .bubble-left.top-stack {
+    border-bottom-left-radius: 10px;
+    border-top-left-radius: 30px;
+  }
+
+  /* Lượt bên PHẢI (POV Chủ máy — Bạn) */
+  .turn-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .pov-tag {
+    font-size: 26px;
+    font-weight: 700;
+    color: #4338ca;
+    padding-right: 10px;
+  }
+
+  .chat-strip.night-mode .pov-tag {
+    color: #c4b5fd;
+  }
+
+  .bubble-right {
+    background: linear-gradient(135deg, #5b3df5, #4338ca);
+    color: #ffffff;
+    font-size: 46px;
+    line-height: 1.30;
+    font-weight: 700;
+    padding: 20px 32px;
+    border-radius: 32px;
+    border-bottom-right-radius: 10px;
+    box-shadow: 0 8px 22px rgba(67, 56, 202, 0.35);
+    word-wrap: break-word;
+    max-width: 92%;
+  }
+
+  /* Media (ảnh thật & GIF) kích thước lớn nhưng khóa trần chiều cao để không tràn vùng an toàn */
+  .media-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: nowrap;
+    margin-top: 4px;
+  }
+
+  .bubble-img {
+    display: block;
+    max-width: 560px;
+    max-height: 410px;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    border-radius: 20px;
+    border: 3px solid #ffffff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  }
+
+  .bubble-img.with-gif {
+    max-width: 500px;
+    max-height: 360px;
+  }
+
+  .meme-sticker {
+    display: block;
+    width: 240px;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 20px;
+    border: 3px solid #fde047;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+    flex-shrink: 0;
+  }
+
+  /* Chuyển cảnh 21:00 ĐÊM nằm giữa dải tối */
+  .night-transition-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 46px 24px;
+    text-align: center;
+  }
+
+  .night-clock {
+    font-size: 74px;
+    font-weight: 900;
+    color: #38bdf8;
+    letter-spacing: 2px;
+    text-shadow: 0 0 24px rgba(56, 189, 248, 0.5);
+  }
+
+  .night-desc {
+    font-size: 38px;
+    font-weight: 800;
+    color: #f8fafc;
+  }
+
+  /* Dòng nhỏ báo đang nhập ngay dưới lượt hiện tại */
+  .typing-bar {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #475569;
+    padding-left: 90px;
+  }
+
+  .chat-strip.night-mode .typing-bar {
+    color: #93c5fd;
+  }
+
+  .typing-bar.pov-typing {
+    justify-content: flex-end;
+    padding-left: 0;
+    color: #4338ca;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.7;
+  }
+
+  /* End Card nằm gọn trong Vùng Vàng giữa màn hình */
+  .end-card-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 20px 30px;
+    text-align: center;
+  }
+
+  .end-card-text {
+    background: linear-gradient(135deg, #0f766e, #115e59);
+    border: 4px solid #5eead4;
+    color: #ffffff;
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1.3;
+    padding: 26px 34px;
+    border-radius: 28px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  }
+
+  .end-gif {
+    width: 320px;
+    border-radius: 22px;
+    border: 3px solid #ffffff;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="safe-center-stage">
+    <div class="top-banner-wrap" id="banner-slot">
+      <div class="banner-hook">Công ty mới đào hố to đùng giữa sân, hỏi Sếp thì Sếp bảo… 💀</div>
+    </div>
+
+    <div class="chat-strip" id="chat-strip">
+      <div class="strip-header">
+        <div class="header-left">
+          <div class="back-group">
+            <svg viewBox="0 0 24 24" width="38" height="38" fill="#1e3a8a"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>
+            <span class="unread-badge">14</span>
+          </div>
+          <img class="group-avatar" src="assets/avatar_khung_long_cua_thep.jpg" alt="Logo">
+          <div class="group-name">Văn Phòng Khủng Long</div>
+        </div>
+        <div class="header-icons">
+          <svg viewBox="0 0 24 24" width="36" height="36" fill="#1e3a8a"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.44-5.15-3.75-6.59-6.59l1.97-1.57c.27-.27.36-.66.24-1.01-.36-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3.3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .65-.65.65-1.19v-3.44c0-.54-.45-.99-.99-.99z"/></svg>
+          <svg viewBox="0 0 24 24" width="38" height="38" fill="#1e3a8a"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+        </div>
+      </div>
+
+      <div class="active-turn" id="active-turn"></div>
+      <div class="typing-bar" id="typing-bar"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let lastTurn = null;
+
+function setBannerMode(mode) {
+  const slot = document.getElementById('banner-slot');
+  if (mode === 'hook') {
+    slot.innerHTML = '<div class="banner-hook">Công ty mới đào hố to đùng giữa sân, hỏi Sếp thì Sếp bảo… 💀</div>';
+  } else {
+    slot.innerHTML = '<div class="banner-series">VĂN PHÒNG KHỦNG LONG • BỂ BƠI VÔ CỰC</div>';
+  }
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function splitToBubbles(text) {
+  // Tách 2 câu rõ ràng thành 2 bong bóng xếp chồng giống Con Bò Đi Làm
+  const m = text.match(/^(.+?[.!?])\s+(.+)$/);
+  if (m && m[1].length >= 6 && m[2].length >= 6) {
+    return [m[1], m[2]];
+  }
+  return [text];
+}
+
+function clearTyping() {
+  const tb = document.getElementById('typing-bar');
+  tb.style.display = 'none';
+  tb.className = 'typing-bar';
+  tb.innerHTML = '';
+}
+
+function showTyping(item) {
+  const tb = document.getElementById('typing-bar');
+  tb.style.display = 'flex';
+  if (item.side === 'right') {
+    tb.className = 'typing-bar pov-typing';
+    tb.innerHTML = `<span>Bạn đang nhập…</span><span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+  } else {
+    tb.className = 'typing-bar';
+    tb.innerHTML = `<span>${escapeHtml(item.sender)} đang nhập</span><span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+  }
+}
+
+function applyItem(item) {
+  clearTyping();
+  const strip = document.getElementById('chat-strip');
+  const turn = document.getElementById('active-turn');
+
+  if (item.kind === 'msg') {
+    // Nếu cùng 1 nhân vật nói tiếp ngay câu trước (vd: Tùng em #1 ảnh -> #2 câu hỏi), giữ câu trước xếp chồng
+    const isSameSpeakerContinuation = lastTurn && lastTurn.kind === 'msg' && lastTurn.code === item.code && item.idx === 2;
+
+    if (item.side === 'right') {
+      const bubbles = splitToBubbles(item.text);
+      const bHtml = bubbles.map(b => `<div class="bubble-right">${escapeHtml(b)}</div>`).join('');
+      turn.innerHTML = `
+        <div class="turn-right">
+          <div class="pov-tag">Bạn (Thiết kế)</div>
+          ${bHtml}
+        </div>
+      `;
+    } else {
+      const av = item.code === 'SEP' ? 'SP' : item.code;
+      let stackHtml = '';
+
+      if (isSameSpeakerContinuation) {
+        // Giữ bong bóng + ảnh của lượt #1 ở trên và thêm câu hỏi #2 ngay dưới
+        stackHtml += `<div class="bubble-left top-stack">${escapeHtml(lastTurn.text)}</div>`;
+        if (lastTurn.img) {
+          stackHtml += `<div class="media-row"><img class="bubble-img" src="${escapeHtml(lastTurn.img)}" alt=""></div>`;
+        }
+        stackHtml += `<div class="bubble-left">${escapeHtml(item.text)}</div>`;
+      } else {
+        const bubbles = splitToBubbles(item.text);
+        stackHtml += bubbles.map((b, i) => `<div class="bubble-left ${i < bubbles.length - 1 ? 'top-stack' : ''}">${escapeHtml(b)}</div>`).join('');
+
+        if (item.img && item.meme_gif) {
+          stackHtml += `
+            <div class="media-row">
+              <img class="bubble-img with-gif" src="${escapeHtml(item.img)}" alt="">
+              <img class="meme-sticker" src="${escapeHtml(item.meme_gif)}" alt="">
+            </div>
+          `;
+        } else if (item.img) {
+          stackHtml += `<div class="media-row"><img class="bubble-img" src="${escapeHtml(item.img)}" alt=""></div>`;
+        } else if (item.meme_gif) {
+          stackHtml += `<div class="media-row"><img class="meme-sticker" src="${escapeHtml(item.meme_gif)}" alt=""></div>`;
+        }
+      }
+
+      turn.innerHTML = `
+        <div class="turn-left">
+          <div class="avatar-circle" style="background:${item.color};">${escapeHtml(av)}</div>
+          <div class="turn-col">
+            <div class="sender-name">${escapeHtml(item.sender)}</div>
+            ${stackHtml}
+          </div>
+        </div>
+      `;
+    }
+    lastTurn = item;
+  } else if (item.kind === 'sys_time') {
+    strip.classList.add('night-mode');
+    // Chuyển màu icon header sang sáng cho dễ nhìn trên nền đêm
+    document.querySelectorAll('.strip-header svg').forEach(s => s.setAttribute('fill', '#7dd3fc'));
+    turn.innerHTML = `
+      <div class="night-transition-box">
+        <div class="night-clock">21:00 ĐÊM</div>
+        <div class="night-desc">⛈️ Ngoài trời đổ mưa như trút nước…</div>
+      </div>
+    `;
+    lastTurn = item;
+  } else if (item.kind === 'end_card') {
+    turn.innerHTML = `
+      <div class="end-card-box">
+        <div class="end-card-text">${escapeHtml(item.text)}</div>
+        <img class="end-gif" src="${escapeHtml(item.meme_gif)}" alt="Meme">
+      </div>
+    `;
+    lastTurn = item;
+  }
+}
+</script>
+</body>
+</html>

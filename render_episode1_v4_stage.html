@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Văn Phòng Cửa Thép — Tập 1 POV</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #0f172a;
+  }
+
+  .stage {
+    position: relative;
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+  }
+
+  .bg-blur {
+    position: absolute;
+    inset: -30px;
+    background-image: url("assets/bg_anime_sky.jpg");
+    background-size: cover;
+    background-position: center;
+    filter: blur(10px) brightness(0.68);
+  }
+
+  /* Safe zone trên cùng: chừa 112px cho thanh trạng thái/UI TikTok */
+  .top-banner-slot {
+    position: absolute;
+    top: 112px;
+    left: 44px;
+    right: 84px;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+  }
+
+  .banner-hook {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    border: 3px solid #fde047;
+    color: #ffffff;
+    font-size: 33px;
+    font-weight: 800;
+    line-height: 1.25;
+    text-align: center;
+    padding: 13px 24px;
+    border-radius: 22px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  }
+
+  .banner-series {
+    background: rgba(15, 23, 42, 0.88);
+    border: 2px solid #38bdf8;
+    color: #e0f2fe;
+    font-size: 27px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    padding: 10px 26px;
+    border-radius: 999px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Khung điện thoại chiếm ~92% chiều rộng (994px), chừa trên 232px & dưới 198px */
+  .phone-shell {
+    position: absolute;
+    top: 232px;
+    left: 22px;
+    width: 994px;
+    height: 1490px;
+    background: #0f172a;
+    border-radius: 44px;
+    border: 5px solid #1e293b;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 10;
+  }
+
+  .app-header {
+    background: #ffffff;
+    padding: 18px 26px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1.5px solid #e2e8f0;
+    flex-shrink: 0;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .back-btn { display: flex; align-items: center; gap: 8px; color: #0084ff; }
+  .unread-badge {
+    background: #0084ff;
+    color: #ffffff;
+    font-size: 21px;
+    font-weight: 700;
+    padding: 2px 11px;
+    border-radius: 999px;
+  }
+  .group-avatar {
+    width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;
+  }
+  .group-meta .group-name { font-size: 29px; font-weight: 800; color: #0f172a; line-height: 1.15; }
+  .group-meta .group-sub { font-size: 20px; color: #64748b; font-weight: 500; margin-top: 2px; }
+  .header-icons { display: flex; align-items: center; gap: 22px; padding-right: 18px; }
+
+  .chat-body {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    background-image: linear-gradient(rgba(15, 23, 42, 0.22), rgba(15, 23, 42, 0.34)), url("assets/bg_anime_sky.jpg");
+    background-size: cover;
+    background-position: center;
+    padding: 20px 84px 22px 22px; /* né mép phải TikTok */
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    gap: 14px;
+  }
+
+  .bottom-anchor-spacer { flex: 1 0 auto; min-height: 10px; }
+
+  .time-divider {
+    align-self: center;
+    background: rgba(15, 23, 42, 0.62);
+    color: #f8fafc;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 6px 18px;
+    border-radius: 999px;
+    margin: 4px 0;
+    flex-shrink: 0;
+  }
+
+  .sys-line {
+    align-self: center;
+    background: rgba(15, 23, 42, 0.56);
+    color: #e2e8f0;
+    font-size: 21px;
+    font-style: italic;
+    padding: 7px 20px;
+    border-radius: 999px;
+    margin: 2px 0;
+    flex-shrink: 0;
+  }
+
+  /* Tin nhắn bên TRÁI (đồng nghiệp khác) */
+  .msg-row.left {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    max-width: 92%;
+    align-self: flex-start;
+    flex-shrink: 0;
+  }
+
+  .avatar-circle {
+    width: 56px; height: 56px; border-radius: 50%; color: #ffffff;
+    font-size: 21px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 4px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+    border: 2px solid rgba(255, 255, 255, 0.85);
+  }
+
+  .msg-col { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+  .sender-header { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; padding-left: 4px; }
+  .sender-name { font-size: 21px; font-weight: 700; color: #ffffff; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75); }
+  .dept-tag { font-size: 16px; font-weight: 700; color: #ffffff; padding: 2px 9px; border-radius: 6px; opacity: 0.95; }
+
+  .bubble {
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 26.5px;
+    line-height: 1.36;
+    font-weight: 500;
+    padding: 14px 20px;
+    border-radius: 22px;
+    border-top-left-radius: 6px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
+    word-wrap: break-word;
+    max-width: 750px;
+  }
+
+  /* Tin nhắn bên PHẢI — POV Chủ máy (Tùng em) giống hệt Messenger người dùng chụp */
+  .msg-row.right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    align-self: flex-end;
+    max-width: 84%;
+    flex-shrink: 0;
+  }
+
+  .pov-label {
+    font-size: 17px;
+    font-weight: 700;
+    color: #bbf7d0;
+    margin-bottom: 4px;
+    padding-right: 6px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  }
+
+  .bubble-right {
+    background: linear-gradient(135deg, #5b3df5, #4338ca);
+    color: #ffffff;
+    font-size: 26.5px;
+    line-height: 1.36;
+    font-weight: 500;
+    padding: 14px 20px;
+    border-radius: 22px;
+    border-bottom-right-radius: 6px;
+    box-shadow: 0 6px 18px rgba(67, 56, 202, 0.35);
+    word-wrap: break-word;
+    max-width: 740px;
+  }
+
+  .bubble-right .caps-hl {
+    color: #fde047;
+    font-weight: 900;
+  }
+
+  .mention-hl {
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-weight: 800;
+    padding: 1px 8px;
+    border-radius: 8px;
+  }
+
+  .caps-hl { color: #b91c1c; font-weight: 900; }
+
+  .bubble-img {
+    display: block;
+    margin-top: 10px;
+    max-width: 540px;
+    max-height: 350px;
+    width: 100%;
+    object-fit: contain;
+    border-radius: 14px;
+    border: 1.5px solid #cbd5e1;
+    background: #f8fafc;
+  }
+
+  .meme-sticker {
+    display: block;
+    margin-top: 10px;
+    width: 210px;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 14px;
+    border: 2px solid #fde047;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  .seen-line {
+    font-size: 19px;
+    color: #f1f5f9;
+    font-weight: 600;
+    margin-top: 5px;
+    padding-left: 8px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+  }
+
+  /* Đang nhập bên trái */
+  .typing-row { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+  .typing-pill {
+    background: rgba(255, 255, 255, 0.94);
+    color: #475569;
+    font-size: 21px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #64748b; }
+
+  /* End Card Tập 2 */
+  .end-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.80);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 40px 80px 40px 40px;
+    z-index: 30;
+    text-align: center;
+  }
+
+  .end-card-text {
+    background: linear-gradient(135deg, #0f766e, #115e59);
+    border: 4px solid #5eead4;
+    color: #ffffff;
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1.32;
+    padding: 26px 32px;
+    border-radius: 28px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .end-gif {
+    width: 300px;
+    border-radius: 20px;
+    border: 3px solid #ffffff;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+  }
+
+  /* Thanh nhập chat dưới đáy phone — hiển thị chữ đang gõ khi POV chủ máy sắp gửi */
+  .input-bar {
+    background: #ffffff;
+    padding: 14px 24px;
+    border-top: 1.5px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+
+  .input-box {
+    flex: 1;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 22px;
+    padding: 11px 20px;
+    border-radius: 999px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .input-box.typing-active {
+    background: #eef2ff;
+    color: #0f172a;
+    font-weight: 600;
+    border: 2px solid #6366f1;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="bg-blur"></div>
+
+  <div class="top-banner-slot" id="banner-slot">
+    <div class="banner-hook">16h45 thứ Sáu chuẩn bị tan làm thì nổ biến nhà khách… 💀</div>
+  </div>
+
+  <div class="phone-shell">
+    <div class="app-header">
+      <div class="header-left">
+        <div class="back-btn">
+          <svg viewBox="0 0 24 24" width="34" height="34" fill="#0084ff"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>
+          <span class="unread-badge">14</span>
+        </div>
+        <img class="group-avatar" src="assets/steel_door_logo.png" alt="Logo">
+        <div class="group-meta">
+          <div class="group-name">Văn Phòng Cửa Thép 🚪🔥</div>
+          <div class="group-sub">12 thành viên • Bạn là Tùng em (Thiết kế)</div>
+        </div>
+      </div>
+      <div class="header-icons">
+        <svg viewBox="0 0 24 24" width="34" height="34" fill="#0084ff"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.44-5.15-3.75-6.59-6.59l1.97-1.57c.27-.27.36-.66.24-1.01-.36-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3.3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .65-.65.65-1.19v-3.44c0-.54-.45-.99-.99-.99z"/></svg>
+        <svg viewBox="0 0 24 24" width="36" height="36" fill="#0084ff"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+      </div>
+    </div>
+
+    <div class="chat-body" id="chat-body">
+      <div class="bottom-anchor-spacer"></div>
+      <div class="time-divider">T6 16:45</div>
+    </div>
+
+    <div class="end-overlay" id="end-overlay">
+      <div class="end-card-text">Anh Khánh đòi gặp Trang làm gì? Chờ Tập 2 tối mai 👀</div>
+      <img class="end-gif" src="assets/episode1_media/clap.gif" alt="Meme">
+    </div>
+
+    <div class="input-bar">
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="#0084ff"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm-4.44-6.19l-2.35 3.02-1.56-1.88c-.2-.25-.58-.24-.78.01l-1.74 2.23c-.26.33-.02.81.39.81h11.05c.41 0 .65-.47.39-.81l-4.63-5.38c-.2-.24-.57-.24-.77 0z"/></svg>
+      <div class="input-box" id="input-box">Aa</div>
+      <div id="send-icon">
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="#0084ff"><path d="M2.3 10.5c0-.83.67-1.5 1.5-1.5h1.7c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5H3.8c-.83 0-1.5-.67-1.5-1.5v-9z M8.5 19.5V10.8l2.9-4.2c.4-.6 1.1-1.1 1.8-1.4.5-.2 1.1-.2 1.5.1.5.3.8.9.8 1.5v3.2h3.3c1.7 0 3.1 1.3 3.2 3 .1.9-.3 1.7-.9 2.3.4.6.4 1.4.1 2.1-.3.6-.8 1-1.3 1.2.3.5.3 1.2 0 1.8-.4.7-1.1 1.1-1.9 1.1H11c-1.4 0-2.5-1.1-2.5-2.5z"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TEAR_EMOJI_SVG = `<svg viewBox="0 0 36 36" style="width:1.12em;height:1.12em;vertical-align:-0.2em;display:inline-block;"><circle cx="18" cy="18" r="16" fill="#FFCC4D"/><path fill="#664500" d="M10.5 16c0-1.4 1.3-2.5 2.8-2.5s2.8 1.1 2.8 2.5c0 .5-.4.8-.8.8s-.8-.3-.8-.8c0-.5-.5-1-1.2-1s-1.2.5-1.2 1c0 .5-.4.8-.8.8s-.8-.3-.8-.8zm9.4 0c0-1.4 1.3-2.5 2.8-2.5s2.8 1.1 2.8 2.5c0 .5-.4.8-.8.8s-.8-.3-.8-.8c0-.5-.5-1-1.2-1s-1.2.5-1.2 1c0 .5-.4.8-.8.8s-.8-.3-.8-.8z"/><path fill="#664500" d="M18 27c-3.5 0-6.2-1.8-6.4-2-.4-.3-.5-.8-.2-1.2.3-.4.8-.5 1.2-.2.1.1 2.3 1.6 5.4 1.6s5.3-1.5 5.4-1.6c.4-.3.9-.2 1.2.2.3.4.2.9-.2 1.2-.2.2-2.9 2-6.4 2z"/><path fill="#5DADEC" d="M26.5 22.5c0 2.1-1.7 3.8-3.8 3.8s-3.8-1.7-3.8-3.8c0-2.1 2.9-5.8 3.8-6.8.9 1 3.8 4.7 3.8 6.8z"/></svg>`;
+const THUMBS_SVG = `<svg viewBox="0 0 24 24" width="32" height="32" fill="#0084ff"><path d="M2.3 10.5c0-.83.67-1.5 1.5-1.5h1.7c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5H3.8c-.83 0-1.5-.67-1.5-1.5v-9z M8.5 19.5V10.8l2.9-4.2c.4-.6 1.1-1.1 1.8-1.4.5-.2 1.1-.2 1.5.1.5.3.8.9.8 1.5v3.2h3.3c1.7 0 3.1 1.3 3.2 3 .1.9-.3 1.7-.9 2.3.4.6.4 1.4.1 2.1-.3.6-.8 1-1.3 1.2.3.5.3 1.2 0 1.8-.4.7-1.1 1.1-1.9 1.1H11c-1.4 0-2.5-1.1-2.5-2.5z"/></svg>`;
+const SEND_SVG = `<svg viewBox="0 0 24 24" width="32" height="32" fill="#4f46e5"><path d="M3.4 20.4l17.4-7.8c.8-.4.8-1.5 0-1.8L3.4 3.1c-.8-.3-1.6.4-1.4 1.3L3.7 11c.1.3.4.6.7.6h7.1c.4 0 .7.3.7.7s-.3.7-.7.7H4.4c-.4 0-.7.2-.7.6L2 19.1c-.2.9.6 1.6 1.4 1.3z"/></svg>`;
+
+function setBannerMode(mode) {
+  const slot = document.getElementById('banner-slot');
+  if (mode === 'hook') {
+    slot.innerHTML = '<div class="banner-hook">16h45 thứ Sáu chuẩn bị tan làm thì nổ biến nhà khách… 💀</div>';
+  } else {
+    slot.innerHTML = '<div class="banner-series">CHUYỆN VĂN PHÒNG CỬA THÉP • TẬP 1</div>';
+  }
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function formatMessageText(item) {
+  let html = escapeHtml(item.text).replace(/🥲/g, TEAR_EMOJI_SVG);
+  if (item.mention) {
+    const m = escapeHtml(item.mention);
+    html = html.replace(m, `<span class="mention-hl">${m}</span>`);
+  }
+  if (item.idx === 7) {
+    html = html.replace('DỌC', '<span class="caps-hl">DỌC</span>');
+  }
+  return html;
+}
+
+function clearTyping() {
+  const old = document.getElementById('active-typing');
+  if (old) old.remove();
+  const ib = document.getElementById('input-box');
+  ib.textContent = 'Aa';
+  ib.classList.remove('typing-active');
+  document.getElementById('send-icon').innerHTML = THUMBS_SVG;
+}
+
+function showTyping(item) {
+  clearTyping();
+  if (item.side === 'right') {
+    // POV chủ máy đang tự gõ chữ ở thanh nhập phía dưới!
+    const ib = document.getElementById('input-box');
+    const preview = item.text.length > 34 ? item.text.slice(0, 34) + '…' : item.text;
+    ib.textContent = preview + '|';
+    ib.classList.add('typing-active');
+    document.getElementById('send-icon').innerHTML = SEND_SVG;
+  } else {
+    const body = document.getElementById('chat-body');
+    const row = document.createElement('div');
+    row.className = 'typing-row';
+    row.id = 'active-typing';
+    row.innerHTML = `
+      <div class="avatar-circle" style="background:${item.color};">${escapeHtml(item.code)}</div>
+      <div class="typing-pill">
+        <span>${escapeHtml(item.sender)} đang nhập</span>
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    `;
+    body.appendChild(row);
+    body.scrollTop = body.scrollHeight;
+  }
+}
+
+function applyItem(item) {
+  clearTyping();
+  const body = document.getElementById('chat-body');
+
+  if (item.kind === 'msg') {
+    const imgHtml = item.img ? `<img class="bubble-img" src="${escapeHtml(item.img)}" alt="">` : '';
+    const gifHtml = item.meme_gif ? `<img class="meme-sticker" src="${escapeHtml(item.meme_gif)}" alt="">` : '';
+    const seenHtml = item.seen ? `<div class="seen-line">${escapeHtml(item.seen)}</div>` : '';
+
+    if (item.side === 'right') {
+      const row = document.createElement('div');
+      row.className = 'msg-row right';
+      row.innerHTML = `
+        <div class="pov-label">Bạn (Tùng em • Thiết kế)</div>
+        <div class="bubble-right">
+          ${formatMessageText(item)}
+          ${imgHtml}
+          ${gifHtml}
+        </div>
+        ${seenHtml}
+      `;
+      body.appendChild(row);
+    } else {
+      const row = document.createElement('div');
+      row.className = 'msg-row left';
+      if (item.recall_id) row.id = item.recall_id;
+      row.innerHTML = `
+        <div class="avatar-circle" style="background:${item.color};">${escapeHtml(item.code)}</div>
+        <div class="msg-col">
+          <div class="sender-header">
+            <span class="sender-name">${escapeHtml(item.sender)}</span>
+            <span class="dept-tag" style="background:${item.color};">${escapeHtml(item.dept)}</span>
+          </div>
+          <div class="bubble">
+            ${formatMessageText(item)}
+            ${imgHtml}
+            ${gifHtml}
+          </div>
+          ${seenHtml}
+        </div>
+      `;
+      body.appendChild(row);
+    }
+  } else if (item.kind === 'sys_recall') {
+    if (item.target_id) {
+      const targetEl = document.getElementById(item.target_id);
+      if (targetEl) targetEl.remove();
+    }
+    const sys = document.createElement('div');
+    sys.className = 'sys-line';
+    sys.textContent = item.text;
+    body.appendChild(sys);
+  } else if (item.kind === 'end_card') {
+    document.getElementById('end-overlay').style.display = 'flex';
+  }
+
+  body.scrollTop = body.scrollHeight;
+}
+</script>
+</body>
+</html>
