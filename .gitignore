@@ -55,6 +55,10 @@ be_boi_audio_pro_frames/
 conbo_be_boi_voices/
 mau_giong_chon/
 /video_be_boi_audio_pro.mp4
+ho_ca_koi_frames/
+conbo_ho_ca_koi_voices/
+carbon_ho_ca_koi_voices/
+/video_tap_02_ho_ca_koi.mp4
 __pycache__/
 *.py[cod]
 .venv/
@@ -62,3 +66,11 @@ venv/
 assets/.tts_cache/
 studio_exports/
 *.tmp
+cit_voice_integration/cit-voice-studio/
+cit_voice_integration/test_output/
+cit_voice_integration/voice_analysis/
+cit_voice_integration/voice_covers/
+cit_voice_integration/voice_covers_v2_clone/
+cit_voice_integration/voice_covers_v3_carbon/
+/*.mp4
+*.mp4.tmp

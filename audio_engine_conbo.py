@@ -121,6 +121,8 @@ def synthesize_dual_gender(
     end_card_spec: Optional[tuple] = None,
     edge_rate: str = "+12%",
     vieneu_speed: float = 1.10,
+    male_speed: Optional[float] = None,
+    female_speed: Optional[float] = None,
     reuse_cache: bool = True,
 ) -> Path:
     """
@@ -175,6 +177,12 @@ def synthesize_dual_gender(
             used_label = f"{engine_type}:{voice_id}"
 
             prev = prev_map.get(it["idx"])
+            eff_vieneu_speed = (
+                (female_speed if female_speed is not None else vieneu_speed)
+                if gender == "female"
+                else (male_speed if male_speed is not None else vieneu_speed)
+            )
+            cur_speed = edge_rate if engine_type == "edge" else eff_vieneu_speed
             if (
                 reuse_cache
                 and prev
@@ -182,6 +190,7 @@ def synthesize_dual_gender(
                 and prev.get("tts") == it.get("tts")
                 and prev.get("voice_name") == used_label
                 and prev.get("audio_file") == final_wav.name
+                and prev.get("speed") == cur_speed
             ):
                 dur = probe_duration(final_wav)
                 row["audio_file"] = final_wav.name
@@ -206,7 +215,7 @@ def synthesize_dual_gender(
                         temperature=0.60, top_k=18, top_p=0.90, repetition_penalty=1.35, denoise=True,
                     )
                     tts.save(audio, str(fb_wav))
-                    dur = _trim_and_convert_wav(fb_wav, final_wav, speed=vieneu_speed)
+                    dur = _trim_and_convert_wav(fb_wav, final_wav, speed=eff_vieneu_speed)
                     used_label = f"vieneu:{fb_voice} (fallback)"
                     fb_wav.unlink(missing_ok=True)
                 finally:
@@ -219,11 +228,12 @@ def synthesize_dual_gender(
                     temperature=0.60, top_k=18, top_p=0.90, repetition_penalty=1.35, denoise=True,
                 )
                 tts.save(audio, str(raw_wav))
-                dur = _trim_and_convert_wav(raw_wav, final_wav, speed=vieneu_speed)
+                dur = _trim_and_convert_wav(raw_wav, final_wav, speed=eff_vieneu_speed)
                 raw_wav.unlink(missing_ok=True)
 
             row["audio_file"] = final_wav.name
             row["voice_name"] = used_label
+            row["speed"] = cur_speed
             row["duration_sec"] = round(dur, 4)
             manifest_out.append(row)
             print(f"  ✓ #{it['idx']:02d} [{gender.upper()} | {used_label}] {dur:.2f}s — {it['tts']}")
@@ -296,6 +306,7 @@ def synthesize_single_narrator(
 
             row["audio_file"] = final_wav.name
             row["voice_name"] = used_label
+            row["speed"] = cur_speed
             row["duration_sec"] = round(dur, 4)
             manifest_out.append(row)
             print(f"  ✓ #{it['idx']:02d} [{used_label}] {dur:.2f}s — {it['tts']}")
@@ -366,8 +377,8 @@ def mix_conbo_audio(
         start_ms = int(round(start_s * 1000))
 
         # 1) Music drop window
-        if it.get("music_drop") or it.get("kind") == "sys_time":
-            if it.get("kind") == "sys_time":
+        if it.get("music_drop") or it.get("kind") in ("sys_time", "sys_recall"):
+            if it.get("kind") in ("sys_time", "sys_recall"):
                 drop_windows.append((max(0.0, start_s - 0.05), start_s + ev_dur))
             elif it.get("audio_file"):
                 v_end = start_s + voice_delay_sec + float(it.get("duration_sec", 0.0))
@@ -421,13 +432,15 @@ def mix_conbo_audio(
             sfx_p = WORKSPACE / after_rel
             if sfx_p.exists():
                 inputs.extend(["-i", str(sfx_p)])
-                if it.get("kind") == "sys_time":
+                if it.get("kind") in ("sys_time", "sys_recall"):
                     sfx_ms = start_ms
-                    sfx_dur = max(0.5, ev_dur)
+                    nat_dur = probe_duration(sfx_p)
+                    sfx_dur = min(nat_dur, max(0.5, float(it.get("after_sfx_dur", ev_dur))))
                     sfx_vol = float(it.get("after_sfx_vol", 0.88))
-                    fade_st = max(0.1, sfx_dur - 0.30)
+                    fade_d = min(0.22, sfx_dur * 0.18)
+                    fade_st = max(0.08, sfx_dur - fade_d)
                     filter_parts.append(
-                        f"[{in_idx}:a]atrim=0:{sfx_dur:.2f},afade=t=out:st={fade_st:.2f}:d=0.30,"
+                        f"[{in_idx}:a]atrim=0:{sfx_dur:.3f},afade=t=out:st={fade_st:.3f}:d={fade_d:.3f},"
                         f"adelay={sfx_ms}|{sfx_ms},volume={sfx_vol:.2f}[asfx_{it['idx']}];"
                     )
                 else:
